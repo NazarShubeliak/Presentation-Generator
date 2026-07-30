@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Generated / confidential content (see docs/00-time-log.md ground rules)
+output/
+reference/
+
+# AI tooling — must never appear in this repository
+.claude/
+.claude*
+CLAUDE.md
+.mcp.json
+.cursor/
+.cursorrules
+.windsurfrules
+.github/copilot-instructions.md
+
+# OS / editor noise
+.vscode/
+Thumbs.db
+.DS_Store
