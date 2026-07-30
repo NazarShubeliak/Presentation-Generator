@@ -6,6 +6,9 @@ __pycache__/
 # Generated / confidential content (see docs/00-time-log.md ground rules)
 output/
 reference/
+# Raw slide exports reproduce confidential customer presentations (contact
+# details, pricing/marketing content) — same rule as reference/, kept local only.
+docs/slides/
 
 # AI tooling — must never appear in this repository
 .claude/
