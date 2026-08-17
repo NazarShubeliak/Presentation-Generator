@@ -9,6 +9,9 @@ reference/
 # Raw slide exports reproduce confidential customer presentations (contact
 # details, pricing/marketing content) — same rule as reference/, kept local only.
 docs/slides/
+# Extracted text/frame measurements reproduce the same confidential content
+# verbatim (real strings, exact copy) — same rule as reference/.
+docs/measurements/
 
 # AI tooling — must never appear in this repository
 .claude/
