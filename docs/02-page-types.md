@@ -97,10 +97,14 @@ open question #2 below.
 
 **Purpose:** Cross-client portfolio grid — "Jeder Markt bekommt seine eigene
 Welt.", 4 example booth themes from other markets (Salzburg, Kassel,
-Charlottenburg, Erzgebirge) plus a footer list of past clients. Not
-location-specific to the deck's own market — same content reused near-
-verbatim across decks (Magdeburg's footer list has one extra market name;
-otherwise byte-identical).
+Charlottenburg, Erzgebirge) plus a footer list of past clients.
+
+**Resolved by designer (2026-08-18, see `docs/open-questions.md` #5):** the
+footer list is **not** simply reused verbatim — it must always exclude the
+deck's own market. "Striezelmarkt Dresden" appears in every deck's footer
+except the one built for Striezelmarkt Dresden itself. So the footer is a
+fixed list, filtered per-generation by the current market, not a fully
+fixed/reused block.
 
 - Appears in: **all 5 presentations**
 - Mandatory or optional: **Mandatory**
@@ -157,8 +161,19 @@ It is not "different headline = continuation table." There are actually
    | 2nd world | *"Das nehmen Ihre Besucher mit — personalisiert, sofort, teilbar."* |
    | 3rd world and beyond | *"Ihre Charaktere. Ihre Geschichte."* |
 
+   **Designer-confirmed (2026-08-18, see `docs/open-questions.md` #10):**
+   this rule stands as-is — the reference decks (Basel, Halle, Magdeburg)
+   were all measured with the 1st/2nd world order reversed from this
+   table, which is a bug in those decks, not the rule. The important,
+   non-negotiable part is that the social-share stats block always stays
+   with the 1st world's headline; exact headline wording per position
+   matters less.
+
    Plus a **mandatory** rule not previously captured: every such slide must
-   be captioned with its own theme world's name (e.g. "Händelstadt Halle").
+   be captioned with its own theme world's name (e.g. "Händelstadt Halle")
+   — and per the designer, this same theme-world-name captioning is
+   mandatory on `PAGE_08_TRANSITION`'s output-card photos too, not just
+   here (see that page type's entry below).
 
 2. **Row-limit continuation** (Freiburg: 2 slides/5 motifs; Magdeburg: 2
    slides/6 motifs) — a *single* theme's motif table overflowing its row

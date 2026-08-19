@@ -106,6 +106,7 @@ def main() -> None:
                 "page_size": page["page_size"],
                 "text_blocks": page["text_blocks"],
                 "images": page["images"],
+                "fills": page.get("fills", []),
             }
             by_page_type.setdefault(page_type, []).append(entry)
 

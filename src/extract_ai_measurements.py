@@ -1,12 +1,16 @@
 """Extract text and image frame measurements from the reference presentations
 (native .ai, saved PDF-compatible).
 
-Used for Work Package 4 (separating fixed from variable elements). Reads
-every .ai in reference/ and writes one JSON file per presentation to
+Used for Work Package 4 (separating fixed from variable elements) and Work
+Package 6 (deriving the master template's fonts/colours, since no official
+CI package exists — see docs/open-questions.md #17). Reads every .ai in
+reference/ and writes one JSON file per presentation to
 docs/measurements/<presentation-name>.json, with one entry per artboard
-(= slide): every text block's font, size and bounding box, and every
-image's placement bounding box. This is raw material for docs/03-elements.md,
-not the deliverable itself — do not hand-copy it in, interpret it.
+(= slide): every text block's font, size, colour and bounding box; every
+vector shape's fill/stroke colour, bounding box and approximate area; and
+every image's placement bounding box. This is raw material for
+docs/03-elements.md and docs/05-template.md, not the deliverable itself —
+do not hand-copy it in, interpret it.
 """
 
 import json
@@ -31,6 +35,26 @@ def round_bbox(bbox) -> list:
     return [round(c, 1) for c in bbox]
 
 
+def srgb_int_to_hex(color_int) -> str:
+    """PyMuPDF encodes span colour as a single sRGB int (0xRRGGBB)."""
+    if color_int is None:
+        return None
+    return f"#{color_int:06x}"
+
+
+def color_tuple_to_hex(color) -> str:
+    """PyMuPDF drawing fill/stroke colour is a (r, g, b) tuple, 0-1 floats."""
+    if color is None:
+        return None
+    r, g, b = (round(c * 255) for c in color)
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+
+def rect_area(bbox) -> float:
+    x0, y0, x1, y1 = bbox
+    return abs(x1 - x0) * abs(y1 - y0)
+
+
 def extract_page(page: fitz.Page) -> dict:
     text_blocks = []
     for block in page.get_text("dict")["blocks"]:
@@ -45,6 +69,7 @@ def extract_page(page: fitz.Page) -> dict:
                         "text": span["text"],
                         "font": span["font"],
                         "size": round(span["size"], 2),
+                        "color": srgb_int_to_hex(span.get("color")),
                         "bbox": round_bbox(span["bbox"]),
                     }
                 )
@@ -67,10 +92,33 @@ def extract_page(page: fitz.Page) -> dict:
         for info in page.get_image_info()
     ]
 
+    fills = []
+    for drawing in page.get_drawings():
+        bbox = drawing.get("rect")
+        if bbox is None:
+            continue
+        bbox = round_bbox(bbox)
+        area = rect_area(bbox)
+        if area < 100:  # skip hairlines/tiny decorative strokes, not real fills
+            continue
+        fill_hex = color_tuple_to_hex(drawing.get("fill"))
+        stroke_hex = color_tuple_to_hex(drawing.get("color"))
+        if fill_hex is None and stroke_hex is None:
+            continue
+        fills.append(
+            {
+                "bbox": bbox,
+                "area": round(area, 1),
+                "fill": fill_hex,
+                "stroke": stroke_hex,
+            }
+        )
+
     return {
         "page_size": round_bbox(page.rect),
         "text_blocks": text_blocks,
         "images": images,
+        "fills": fills,
     }
 
 
