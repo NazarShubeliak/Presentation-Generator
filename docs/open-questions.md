@@ -162,6 +162,10 @@ to match?** All answered above — see per-item resolutions.
     Not yet asked. Doesn't block starting the layouts/placeholders, but
     needs an answer before the slide master step (WP6 step 2) is
     complete — see `docs/05-template.md`.
+    **Resolved by designer (2026-08-20):** logo goes in the slide master
+    footer, repeated on every slide (not just the title slide). PNG is
+    acceptable if no vector file exists. **Still outstanding:** the actual
+    logo file hasn't been supplied yet — follow up separately.
 19. **`PAGE_03_THEME_SHOWCASE`'s theme-world caption styling is inconsistent
     across all 3 decks that have it, in both position and typography, not
     just the already-resolved 1-vs-2-up array question (question 11):**
@@ -183,6 +187,11 @@ to match?** All answered above — see per-item resolutions.
     page type — not guessing one from majority count since there's no
     majority (3 different combinations across 4 measured instances).
     Blocks finalizing `PAGE_03_THEME_SHOWCASE` in `docs/05-template.md`.
+    **Resolved by designer (2026-08-20):** Basel's style is canonical —
+    `HelveticaNeue-CondensedB`, 27.41pt, `#f2f0ee`, top-left — applied the
+    same regardless of 1-up vs. 2-up. Confirmed as a real text placeholder,
+    not baked into the image. On a 2-up slide, each theme gets its **own**
+    separate caption (not one combined caption for both).
 20. **`PAGE_05_USER_FLOW`'s 2-card output example may have the same
     flattened-image problem already found and resolved for
     `PAGE_06_LOCAL_MOTIFS` (question 9).** `docs/04-fields.md` currently
@@ -204,6 +213,14 @@ to match?** All answered above — see per-item resolutions.
     placeholders for now (matching the existing WP5 field catalogue) but
     flagged as provisional pending this answer, same treatment as
     `TXT_KIOSK_BACKGROUND_LABEL` below.
+    **Resolved by designer (2026-08-20):** two separate photos (matching
+    `PAGE_06_LOCAL_MOTIFS`'s per-image mechanism) — but arranged as a
+    **vertical stack** (one card above the other), not side by side as the
+    source decks' flattened combined image suggested. The template
+    composes them itself. Individual per-card aspect ratio is a new,
+    separate open item — the old 1.78 combined ratio was for a horizontal
+    pairing and doesn't apply to a vertical stack; decide directly in
+    PowerPoint when this layout is built.
 21. **`TXT_KIOSK_BACKGROUND_LABEL`, re-checked while building WP6
     (2026-08-19):** confirmed baked into the `IMG_KIOSK_SCREENSHOT` image
     in all 5 source decks — no separate overlay text object found at that
@@ -212,6 +229,10 @@ to match?** All answered above — see per-item resolutions.
     resolved market-name-watermark precedent, `docs/open-questions.md` #8),
     but still not formally asked — carry into the next batch of designer
     questions alongside #19 and #20.
+    **Resolved by designer (2026-08-20) — the lean was wrong:** it is a
+    real, separate text field after all, not baked into the screenshot.
+    Filled from a brief listing characters, places, and defined landmarks
+    per market, supplied ahead of generation.
 
 ## E. Found while building the WP5 field catalogue (new, 2026-08-18)
 
@@ -280,6 +301,23 @@ to match?** All answered above — see per-item resolutions.
     `docs/05-template.md` without this answer — the majority text is
     usable as a provisional working draft in the meantime, clearly marked
     as such.
+    **Resolved by designer (2026-08-20) — neither option, the whole
+    scheme was replaced.** The designer judged the entire previous
+    rotation (this question, question 15, question 16, question 10) as
+    unsuccessful and issued a complete new scheme instead of picking among
+    the measured variants: World 1 headline "Das nehmen Ihre Besucher mit
+    — personalisiert, sofort, teilbar.", subheadline "Jedes Motiv wird
+    individuell auf Ihren Weihnachtsmarkt abgestimmt — Ihre Besucher
+    werden Teil Ihrer Erlebniswelt. Das teilen sie." (+ stats callout,
+    question 23). World 2 headline "Ihre Charaktere. Ihre Geschichte.",
+    subheadline "Gemeinsam mit Ihnen entwickeln wir die Charaktere, die
+    perfekt zu Ihrem Markt passen." World 3 headline "Ein Weihnachtsmarkt.
+    Mehrere Erlebniswelten.", subheadline "Jedes Motiv erzählt eine eigene
+    Geschichte — perfekt abgestimmt auf Ihre Veranstaltung und Ihre
+    Stadt." World 4+: no fixed headline/subheadline, theme-world-name
+    caption only. Em-dash unified everywhere; wording lightly adjusted for
+    natural German phrasing. See `docs/03-elements.md`/`docs/05-template.md`
+    for the full final table.
 23. **Stats callout wording (question 7 above) needs re-confirming — the
     original answer wasn't shown the full picture either.** Re-measuring
     all 5 decks found a second wording, present in 3 of 5 decks (Basel,
@@ -296,6 +334,10 @@ to match?** All answered above — see per-item resolutions.
     wording is actually canonical, given the majority now points the
     opposite way from question 7's answer? Don't build the "final" wording
     into `docs/05-template.md` without this answer.
+    **Resolved by designer (2026-08-20):** the original question 7 answer
+    stands unchanged — "...mit Ihrem Markt als Kontext." (108 chars) is
+    canonical, despite the majority-by-deck-count evidence for the other
+    wording. Always paired with world 1 (see question 22's new scheme).
 24. **`PAGE_08_TRANSITION`'s overlay caption (question 8 above) — is it
     really the theme-world name, or the market name?** Question 8 concluded
     it's the theme-world name (same field/mechanism as
@@ -312,3 +354,22 @@ to match?** All answered above — see per-item resolutions.
     `docs/05-template.md` as a new provisional field (`TXT_TRANSITION_CAPTION`)
     pending this answer, rather than wiring it to either existing field by
     assumption.
+    **Resolved by designer (2026-08-20):** the field is `TXT_THEME_WORLD_NAME`
+    — the original question 8 answer stands. Halle's "Hallescher
+    Weihnachtsmarkt" text is a content mistake in that one reference deck
+    (wrong value entered), not evidence the field is market-name. Dropped
+    the provisional `TXT_TRANSITION_CAPTION` field — `PAGE_08_TRANSITION`
+    reuses `TXT_THEME_WORLD_NAME` with its own page-type-specific styling
+    (`HelveticaNeue-Medium`, 14.19pt, `#ffffff`/`#000000`).
+
+## H. Found while building WP6, `PAGE_09_SOCIAL_REACH` (new, 2026-08-20)
+
+25. **Does `PAGE_09_SOCIAL_REACH`'s Instagram mockup have a market-name
+    caption at all, and if so, is it a separate field?** `docs/03-elements.md`
+    originally assumed a caption here (never actually measured). Re-checked
+    directly against all 5 decks' measurement data while finishing
+    `docs/05-template.md`: no separate caption text object exists next to
+    the mockup image in any of them. **Resolved by designer (2026-08-20):**
+    yes, a caption exists, but it's baked into the `IMG_INSTAGRAM_MOCKUP`
+    photo asset itself (part of the mocked-up phone screen) — not a
+    separate field the template or generator overlays.

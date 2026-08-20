@@ -72,13 +72,12 @@ seem obvious):
 
 `TXT_KIOSK_BACKGROUND_LABEL` note: `docs/02-page-types.md`'s QC rule 4.4
 lists "background-choice labels shown in the kiosk-interface screenshot" as
-a per-market-variable element distinct from the screenshot image itself, but
-`docs/03-elements.md` never measured it as a standalone text (it's baked
-into the `IMG_KIOSK_SCREENSHOT` image, not overlaid text). Included here for
-completeness per the QC rule; flag for the designer whether it's truly a
-separate field or purely part of the image asset, same distinction already
-made for `PAGE_08_TRANSITION`'s market-name watermark (not a field, baked
-into the image).
+a per-market-variable element distinct from the screenshot image itself.
+**Confirmed by the designer 2026-08-20** (`docs/open-questions.md` #21):
+this is a real, separate text field, not baked into `IMG_KIOSK_SCREENSHOT`
+(the source decks just never showed it as its own text object). Filled from
+a brief listing characters, places, and defined landmarks per market,
+supplied in advance of generation — not authored freehand per field.
 
 ## Image fields (`IMG_`)
 
@@ -90,7 +89,7 @@ into the image).
 | `IMG_MOTIF_1_PHOTO` / `IMG_MOTIF_1_BACKGROUND` / `IMG_MOTIF_1_MASK` | Aspect ratio **not yet measured** — see open question | Yes | `PAGE_06_LOCAL_MOTIFS` | `images/magdeburg_rudolph_photo.jpg` |
 | `IMG_MOTIF_2_*` / `IMG_MOTIF_3_*` (same 3 sub-fields each) | Same as above | Optional, matching `TXT_MOTIF_2_NAME`/`TXT_MOTIF_3_NAME` | `PAGE_06_LOCAL_MOTIFS` | — |
 | `IMG_KIOSK_SCREENSHOT` | Frame ratio 1.45 | Yes | `PAGE_05_USER_FLOW` | `images/magdeburg_kiosk.png` |
-| `IMG_USER_FLOW_CARD_1` / `IMG_USER_FLOW_CARD_2` | Combined frame ratio ≈1.78 | Yes | `PAGE_05_USER_FLOW` | `images/magdeburg_card_example_1.jpg` |
+| `IMG_USER_FLOW_CARD_1` / `IMG_USER_FLOW_CARD_2` | Individual aspect ratio not yet determined — see note below | Yes | `PAGE_05_USER_FLOW` | `images/magdeburg_card_example_1.jpg` |
 | `IMG_OUTPUT_CARD_1` / `IMG_OUTPUT_CARD_2` | Frame ratio 1.55 | Yes | `PAGE_08_TRANSITION` | `images/magdeburg_output_card_1.jpg` |
 | `IMG_INSTAGRAM_MOCKUP` | Frame ratio 1.33 | Yes | `PAGE_09_SOCIAL_REACH` | `images/magdeburg_instagram_mockup.jpg` |
 | `IMG_LANDMARK_PHOTO` | Frame ratio 0.559 (portrait) | Yes | `PAGE_10_CONTACT` | `images/magdeburg_dom.jpg` |
@@ -109,27 +108,31 @@ reused field in this catalogue already works.
 
 ## Open items carried from WP4, still unresolved
 
-These block a real value for a small number of fields above — see
-`docs/open-questions.md` for the full context, not repeated here:
+**Status 2026-08-20: all designer-side questions for this catalogue are
+now answered** (`docs/open-questions.md` #18–#25). What's left is
+PowerPoint-layout-time work, not something the designer needs to weigh in
+on again — see `docs/open-questions.md` for full context, not repeated
+here:
 
 - `IMG_MOTIF_1/2/3_PHOTO`/`_BACKGROUND`/`_MASK` aspect ratios — the source
   decks only measured the flattened 3×3 table image, which no longer
   applies once the table is composed from 9 separate images (designer's
   resolved architecture, `docs/open-questions.md` #9). Real per-cell ratios
   need measuring once WP6's template defines the actual cell frames.
-- `TXT_MOTIF_INTRO` presence on position-3+ tables — wording is confirmed,
-  but whether it should now appear on position 3+ (which gets a real
-  headline again per the 2026-08-18 answer) or stay absent as measured is
-  still open, `docs/open-questions.md` #16.
-- `TXT_KIOSK_BACKGROUND_LABEL` — whether this is a real separate field or
-  purely baked into `IMG_KIOSK_SCREENSHOT` — not yet asked, worth folding
-  into the next batch of designer questions.
+- `IMG_USER_FLOW_CARD_1`/`_2` individual aspect ratio — count (2) and
+  arrangement (vertical stack) are confirmed (`docs/open-questions.md`
+  #20), but the only ratio ever measured (1.78) was for the old
+  side-by-side flattened image and doesn't transfer to a vertical stack.
+  Decide once this layout is laid out in PowerPoint.
 
-**Resolved 2026-08-18, no longer open:** `IMG_USER_FLOW_CARD_1`/`_2` count
-(2 cards confirmed), `PAGE_06_LOCAL_MOTIFS` position-3+ headline (position
-3 = "Ihre Charaktere...", position 4+ = plain theme name, still not a WP5
-field — computed by table position like positions 1–2).
+**Resolved 2026-08-18/2026-08-20, no longer open:** `IMG_USER_FLOW_CARD_1`/`_2`
+count (2 cards) and arrangement (vertical stack, `docs/open-questions.md`
+#20); `TXT_KIOSK_BACKGROUND_LABEL` confirmed as a real field (#21);
+`PAGE_06_LOCAL_MOTIFS`'s headline/subheadline rotation entirely rewritten
+and finalized (#22) — see `docs/03-elements.md`/`docs/05-template.md` for
+the new wording, the old "position 3+" question this file used to track no
+longer applies since the whole rotation scheme it referred to was replaced.
 
 None of the remaining items block starting WP6/WP7 — they only affect the
 exact schema shape for `PAGE_06_LOCAL_MOTIFS`'s per-cell images and
-whether one text field's value is empty on some table positions.
+`PAGE_05_USER_FLOW`'s card images, both PowerPoint-layout decisions.

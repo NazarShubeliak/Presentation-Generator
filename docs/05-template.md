@@ -69,12 +69,14 @@ designer if a fixed treatment is actually wanted here instead.
 checked for a raster image at a consistent position/size repeated across
 a deck's slides (the usual signature of a corner logo/watermark) and found
 none. "cosmoproducts GmbH" on `PAGE_10_CONTACT` appears to be styled text,
-not an embedded logo graphic. **Open question for Martin/designer, not yet
-asked:** is there a logo mark that should appear on the master template
-(e.g. slide master footer, title slide), given none is visible in the
-source decks? Needs answering before the slide master step (WP6 step 2) is
-fully complete — can proceed with layouts/placeholders in the meantime
-since this only affects the master, not per-layout placeholder mapping.
+not an embedded logo graphic.
+
+**Resolved by designer (2026-08-20, see `docs/open-questions.md` #18):**
+the logo goes in the **slide master footer**, repeated on every slide of
+a deck (not just the title slide). PNG is acceptable if no vector file is
+supplied. **Still needed before WP6 step 2 can be finished:** the actual
+logo file — not yet provided, follow up separately from this question
+batch.
 
 ### Slide dimensions
 
@@ -171,18 +173,10 @@ a full-bleed photo (or 2-up photo pair) and per-theme caption(s).
 |---|---|---|
 | `IMG_THEME_WORLD_PHOTO_1` | Picture Placeholder | Full-bleed (or left half of a 2-up pair). Source frame ratio 4:3 for the single-photo layout. |
 | `IMG_THEME_WORLD_PHOTO_2` | Picture Placeholder | **Optional** — present only when the array has 2 entries (2-up layout, right half). |
-| `TXT_THEME_WORLD_NAME_1` | Text Placeholder | Mandatory. Max 25 characters. |
-| `TXT_THEME_WORLD_NAME_2` | Text Placeholder | **Optional** — present only on a 2-up slide, matching `IMG_THEME_WORLD_PHOTO_2`. Max 25 characters (max 55 if the template ends up rendering both names as one combined caption instead of two separate ones — see below). |
+| `TXT_THEME_WORLD_NAME_1` | Text Placeholder | Mandatory. Max 25 characters. **Styling resolved 2026-08-20** (`docs/open-questions.md` #19): `HelveticaNeue-CondensedB`, 27.41pt, `#f2f0ee`, top-left — the Basel single-theme instance is now the canonical style, applied regardless of 1-up vs. 2-up. Real text placeholder, not baked into the image. |
+| `TXT_THEME_WORLD_NAME_2` | Text Placeholder | **Optional** — present only on a 2-up slide, matching `IMG_THEME_WORLD_PHOTO_2`. Max 25 characters. Same styling as `_1` — designer confirmed a 2-up slide gets **two separate captions**, one per theme half, not one combined caption spanning both (the "max 55 if combined" contingency in earlier drafts of this doc no longer applies). |
 
-**Not yet resolved before this layout can be called final — do not guess a
-value for either of these, both need a designer decision:**
-- **Caption styling has no consistent precedent to copy.** Measured across
-  the 3 decks that have this page type, no two instances share the same
-  font, colour, or position (top-left large headline-style in Basel vs.
-  bottom small caption-style in Halle/Magdeburg, and Halle vs. Magdeburg's
-  2-up captions don't even match each other) — logged as
-  `docs/open-questions.md` #19. Needs a designer decision on the canonical
-  treatment before this layout's text placeholder can be styled.
+**Not yet resolved before this layout can be called final:**
 - **2-up photo split.** Source `.ai` files render the 2-up pair as a single
   flattened bleed image per slide, not two independently-placed photo
   frames — the actual left/right split ratio isn't measurable from the
@@ -192,7 +186,8 @@ value for either of these, both need a designer decision:**
   this page type).
 - Photo crop treatment for 4:3 source → 16:9 target (same open item carried
   from `PAGE_01_TITLE`/`PAGE_02_SERVICE`).
-- Logo placement, if any (`docs/open-questions.md` #18) — slide-master-level.
+- Logo file itself not yet supplied (placement is resolved — slide master
+  footer, `docs/open-questions.md` #18).
 
 ---
 
@@ -254,48 +249,47 @@ same wording).
 | Placeholder name | Type | Notes |
 |---|---|---|
 | `IMG_KIOSK_SCREENSHOT` | Picture Placeholder | Market-specific kiosk-interface screenshot — must show the deck's own market backgrounds (QC rule 4.4, `docs/02-page-types.md`). Frame ratio target **1.45**. Top-right area of the slide. |
-| `IMG_USER_FLOW_CARD_1` | Picture Placeholder | **Provisional — see `docs/open-questions.md` #20.** Built as 2 separate placeholders to match the current WP5 field catalogue, but the source `.ai` files (Basel/Freiburg/Magdeburg, the confirmed 2-card layout) actually contain **one single flattened image** covering both cards (native ratio 1.78), not two independent photos — same architecture question already resolved for `PAGE_06_LOCAL_MOTIFS` (`docs/open-questions.md` #9), not yet asked here. Bottom-right area of the slide, below the kiosk screenshot. |
-| `IMG_USER_FLOW_CARD_2` | Picture Placeholder | Same caveat as `IMG_USER_FLOW_CARD_1` — may need to collapse into a single `IMG_USER_FLOW_CARDS` field instead once #20 is answered. |
+| `TXT_KIOSK_BACKGROUND_LABEL` | Text Placeholder | **Resolved 2026-08-20** (`docs/open-questions.md` #21) — this is a real, separate text field, not baked into `IMG_KIOSK_SCREENSHOT`. Filled from a brief listing characters, places, and defined landmarks per market, supplied in advance. Max 30 characters (provisional constraint, per `docs/04-fields.md` — not separately measured since it was never visible as its own text object in the source decks). |
+| `IMG_USER_FLOW_CARD_1` | Picture Placeholder | **Resolved 2026-08-20** (`docs/open-questions.md` #20): two separate photos, same mechanism as `PAGE_06_LOCAL_MOTIFS`'s motif images — the template composes them itself. Designer specified a **vertical stack** (one card above the other), not side by side as the source decks' flattened combined image suggested. Individual per-card aspect ratio is not derivable from the old combined-ratio measurement (1.78 was for a horizontal pairing) — **still needs a decision, see below.** Bottom-right area of the slide, below the kiosk screenshot. |
+| `IMG_USER_FLOW_CARD_2` | Picture Placeholder | Second card, stacked below `_1`. Same open aspect-ratio item. |
 
 **Not yet resolved before this layout can be called final:**
-- **`IMG_USER_FLOW_CARD_1`/`_2` vs. one combined field** —
-  `docs/open-questions.md` #20, new. Don't build WP8 image-insertion logic
-  against 2 independent card placeholders until this is confirmed, same
-  caution already applied to `PAGE_06_LOCAL_MOTIFS`.
-- **`TXT_KIOSK_BACKGROUND_LABEL`** — re-confirmed baked into
-  `IMG_KIOSK_SCREENSHOT` in all 5 decks, no standalone text object found;
-  not yet formally asked, `docs/open-questions.md` #21. Not built as a
-  placeholder here (treated as part of the image, not a text field) —
-  revisit if the designer says otherwise.
-- Logo placement, if any (`docs/open-questions.md` #18) — slide-master-level.
+- **`IMG_USER_FLOW_CARD_1`/`_2` individual aspect ratio.** The 2-separate-
+  fields structure and vertical-stack arrangement are now confirmed, but
+  the only ratio ever measured (1.78) was for the *old* single flattened
+  side-by-side image and doesn't apply to a vertical stack of 2 independent
+  photos. Decide directly in PowerPoint when this layout is built, same
+  treatment as `PAGE_03_THEME_SHOWCASE`'s 2-up split.
+- Logo file itself not yet supplied (placement is resolved — slide master
+  footer, `docs/open-questions.md` #18).
 
 ---
 
 ### PAGE_06_LOCAL_MOTIFS
 
 Reference: `docs/02-page-types.md` (purpose), `docs/03-elements.md`
-(measurements, extended 2026-08-19 with typography for every element on this
-page type and a re-measurement of all 5 decks' rotating text), `docs/04-fields.md`
-(field definitions — `TXT_MOTIF_INTRO` removed 2026-08-19, reclassified as
-fixed/computed, see below). Structure (row limit, image architecture,
-headline rotation mechanism) is settled; **exact wording for 3 of this page
-type's fixed text elements is provisional**, pending `docs/open-questions.md`
-#22 and #23 — do not treat the wording below as final.
+(measurements), `docs/04-fields.md` (field definitions — `TXT_MOTIF_INTRO`
+removed 2026-08-19, reclassified as fixed/computed, see below). **Headline
+and subheadline rotation rewritten 2026-08-20** (`docs/open-questions.md`
+#22): the designer discarded the entire previous rotation scheme
+("Jede Karte ist ein Unikat..." etc., `docs/open-questions.md` #10/#15/#16)
+as unsuccessful and replaced it outright — the table below is the new,
+final scheme, not a patch on the old one. Stats-callout wording separately
+confirmed (#23) as the text already used before — no change there.
 
-**Fixed content — type directly into the layout, not a placeholder, EXCEPT
-where noted provisional:**
+**Fixed content — type directly into the layout, not a placeholder. Em-dash
+(—) unified across all positions per the designer's note.**
 
 | Element | Content | Formatting note |
 |---|---|---|
-| Headline, position 1 | "Jede Karte ist ein Unikat — und ein Grund zum Teilen." | `HelveticaNeue-CondensedB`, 24.87pt, `#231f20`. Always paired with the stats callout below — non-negotiable per the designer (`docs/open-questions.md` #10). |
-| Headline, position 2 | "Das nehmen Ihre Besucher mit — personalisiert, sofort, teilbar." | Same formatting. |
-| Headline, position 3 | "Ihre Charaktere. Ihre Geschichte." | Same formatting. |
-| Headline, position 4+ | Plain theme-name heading (reuses `TXT_THEME_WORLD_NAME`'s value as the heading text, no separate fixed string) | Same formatting — not yet confirmed which weight/size applies here specifically, assume same as positions 1–3 until built. |
-| Intro paragraph, position 1 **(provisional — `docs/open-questions.md` #22)** | "Jedes Motiv wird individuell passend zu Ihrem Event gestaltet — Ihre Besucher werden Teil Ihrer Erlebniswelt. Das teilen sie." | `MyriadPro-Regular`, 11.13pt, `#231f20`. Majority wording (3 of 5 decks) — Halle and Erzgebirgsdorf each use a different text, not yet resolved which is canonical. |
-| Intro paragraph, position 2 **(provisional — `docs/open-questions.md` #22)** | "Ein Event. Mehrere Erlebniswelten. Jedes Motiv erzählt eine eigene Geschichte – perfekt abgestimmt auf Ihre Veranstaltung." | Same formatting. Majority wording, same caveat as position 1. |
-| Intro paragraph, position 3 | "Gemeinsam mit Ihnen entwickeln wir die Charaktere, die perfekt zu Ihrem Markt passen." | Same formatting. **Not provisional** — confirmed by direct measurement, both decks that reach position 3 agree exactly. |
-| Intro paragraph, position 4+ | Not present (no text block found at this position in any deck) | — |
-| 70%-stats callout **(provisional — `docs/open-questions.md` #23)** | "70 % der Besucher teilen ihr Motiv aktiv auf Facebook, Instagram oder TikTok — mit Ihrem Markt als Kontext." | `MyriadPro-Regular`, 11.87pt — "70 %" in `#c5923b` (gold), rest in `#efe7de` (cream), set inside a dark panel (`#001518` fill, `#c5923b` stroke). Only present on the position-1 table, together with that headline. Using the already-"resolved" `docs/open-questions.md` #7 wording here as the working draft, but a majority of decks (3 of 5) actually use a different, longer text — re-confirm before finalizing. |
+| World 1 — headline | "Das nehmen Ihre Besucher mit — personalisiert, sofort, teilbar." | `HelveticaNeue-CondensedB`, 24.87pt, `#231f20`. |
+| World 1 — subheadline | "Jedes Motiv wird individuell auf Ihren Weihnachtsmarkt abgestimmt — Ihre Besucher werden Teil Ihrer Erlebniswelt. Das teilen sie." | `MyriadPro-Regular`, 11.13pt, `#231f20`. |
+| World 1 — stats callout | "70 % der Besucher teilen ihr Motiv aktiv auf Facebook, Instagram oder TikTok — mit Ihrem Markt als Kontext." | `MyriadPro-Regular`, 11.87pt — "70 %" in `#c5923b` (gold), rest in `#efe7de` (cream), inside a dark panel (`#001518` fill, `#c5923b` stroke). **Confirmed final** (`docs/open-questions.md` #23) — always paired with world 1, same as before. |
+| World 2 — headline | "Ihre Charaktere. Ihre Geschichte." | Same formatting as world 1's headline. |
+| World 2 — subheadline | "Gemeinsam mit Ihnen entwickeln wir die Charaktere, die perfekt zu Ihrem Markt passen." | Same formatting as world 1's subheadline. |
+| World 3 — headline | "Ein Weihnachtsmarkt. Mehrere Erlebniswelten." | Same formatting. |
+| World 3 — subheadline | "Jedes Motiv erzählt eine eigene Geschichte — perfekt abgestimmt auf Ihre Veranstaltung und Ihre Stadt." | Same formatting. |
+| World 4+ — headline/subheadline | None — no fixed rotating text at all, only the theme-world-name caption (`TXT_THEME_WORLD_NAME` placeholder, below). | — |
 | Column headers, first table of a sequence | "Fotokarte", "Hintergrund", "AR-Maske" | `MyriadPro-Regular`, 11.87pt, `#231f20`. One combined text run across all 3 columns. |
 | Column headers, continuation table | "Fotokarte" (unchanged) + "Hintergrund", "AR-Maske" | Same formatting, but measured as two separate text boxes on continuation slides — "Fotokarte" stays in place, "Hintergrund"/"AR-Maske" repeat. Build as 2 separate text boxes to match. |
 | Row-number circles | "1"/"2"/"3" on a table's first appearance; "4"/"5"/"6" if a theme continues onto a second slide | `CoreSerifN-75Black`, 22.37pt, `#c5923b`. Structural, not a content field — WP8 writes the number, not the input JSON. |
@@ -304,24 +298,20 @@ where noted provisional:**
 
 | Placeholder name | Type | Notes |
 |---|---|---|
-| `TXT_THEME_WORLD_NAME` | Text Placeholder | Same field as `PAGE_01_TITLE`/`PAGE_02_SERVICE`/`PAGE_08_TRANSITION` — mandatory here (unlike its optional use on TITLE/SERVICE). Max 55 characters (higher than the 25-char limit used elsewhere — this page type's caption runs longer, e.g. Erzgebirgsdorf's 47-char instance). `HelveticaNeue-CondensedB`, 14.26pt, `#231f20`, top-left, above the headline. Build on every table position (1 through 4+), matching what positions 1–3 actually show in the majority of decks — Freiburg's LOCAL_MOTIFS slides are missing this caption entirely, but per the established 100%-mandatory rule (`docs/open-questions.md` #8) that's a deck bug, not a valid caption-less layout to replicate. |
+| `TXT_THEME_WORLD_NAME` | Text Placeholder | Same field as `PAGE_01_TITLE`/`PAGE_02_SERVICE`/`PAGE_08_TRANSITION` — mandatory here. Max 55 characters. `HelveticaNeue-CondensedB`, 14.26pt, `#231f20`, top-left, directly under the subheadline on world 1–3 (per the designer's answer, "Plätzhalter unter dem Untertitel"); on world 4+ it's the only text on the slide besides the motif table. Present on **every** world position, no exceptions — matches the already-established 100%-mandatory caption rule (`docs/open-questions.md` #8). |
 | `TXT_MOTIF_1_NAME` / `TXT_MOTIF_2_NAME` / `TXT_MOTIF_3_NAME` | Text Placeholder | `_1` mandatory, `_2`/`_3` optional (1–3 motif rows per table). Max 30 characters. `MyriadPro-Regular`, 8.34pt, `#231f20`. |
 | `IMG_MOTIF_1_PHOTO` / `IMG_MOTIF_1_BACKGROUND` / `IMG_MOTIF_1_MASK` | Picture Placeholder ×3 | Per-cell images per the designer's resolved architecture (`docs/open-questions.md` #9) — generator composes the 3×3 grid, template does not receive one flattened table image. Aspect ratio **not measurable from source** (source files flatten the whole table into one image) — decide directly in PowerPoint when this layout is laid out, same treatment as `PAGE_03_THEME_SHOWCASE`'s 2-up split. |
 | `IMG_MOTIF_2_*` / `IMG_MOTIF_3_*` (same 3 sub-fields each) | Picture Placeholder ×6 | Optional, matching `TXT_MOTIF_2_NAME`/`TXT_MOTIF_3_NAME`. Same aspect-ratio caveat. |
 
 **Not yet resolved before this layout can be called final:**
-- **Intro paragraph wording for positions 1 and 2** — `docs/open-questions.md`
-  #22, new. Majority text used above as a working draft only.
-- **Stats callout wording** — `docs/open-questions.md` #23, new. The
-  previously-"resolved" #7 answer turns out to be the minority wording by
-  deck count; re-confirm before finalizing.
 - Per-cell motif image aspect ratios (photo/background/mask) — not
   measurable from the flattened source, decide directly in PowerPoint.
 - Row-limit continuation mechanics (reusing the 3-row structure with
   circles 4/5/6, and the column-header split into 2 boxes) are documented
   above from measurement, but haven't been built/tested in an actual 16:9
   layout yet — re-verify once this layout exists in PowerPoint.
-- Logo placement, if any (`docs/open-questions.md` #18) — slide-master-level.
+- Logo file itself not yet supplied (placement is resolved — slide master
+  footer, `docs/open-questions.md` #18).
 
 ---
 
@@ -368,13 +358,12 @@ but has no per-market content to fill in.
 ### PAGE_08_TRANSITION
 
 Reference: `docs/02-page-types.md` (purpose), `docs/03-elements.md`
-(measurements, incl. the designer's resolution that the overlay caption is
-the theme-world name, not market-name branding — `docs/open-questions.md`
-#8), `docs/04-fields.md` (field definitions). Re-measured 2026-08-20 against
-all 5 decks' `docs/measurements/by_page_type.json` data — the 2-card
-structure and frame ratio are confirmed clean, but the caption's *content*
-doesn't match what #8's resolution described. Logged as a new open question
-rather than assumed away.
+(measurements), `docs/04-fields.md` (field definitions). Field identity
+**confirmed 2026-08-20** (`docs/open-questions.md` #24, superseding the
+2026-08-19 reopening): this is `TXT_THEME_WORLD_NAME`, the same field used
+on `PAGE_01_TITLE`/`PAGE_02_SERVICE`/`PAGE_06_LOCAL_MOTIFS`, not a separate
+market-name field — see the note below on the unresolved discrepancy this
+leaves in the Halle reference deck.
 
 **Fixed content:** none — this page type has no headline or body copy, only
 2 output-card photos and, per the mandatory-caption rule, an overlay
@@ -386,27 +375,21 @@ caption.
 |---|---|---|
 | `IMG_OUTPUT_CARD_1` | Picture Placeholder | Left card. Frame ratio consistently 1.54–1.57 across Basel/Erzgebirgsdorf/Freiburg/Magdeburg — **target 1.55**. Halle's is a wider range (1.41–1.63), not treated as the model per `docs/03-elements.md`. |
 | `IMG_OUTPUT_CARD_2` | Picture Placeholder | Right card. Same ratio target. |
-| `TXT_TRANSITION_CAPTION` **(new field, provisional — see open question below)** | Text Placeholder | Overlay caption on each card, present in all 5 decks per the mandatory rule (`docs/open-questions.md` #8) but only actually visible in Halle's source file — the other 4 are missing it (deck bugs, not valid caption-less examples, per the existing resolution). `HelveticaNeue-Medium`, 14.19pt — measured as a fill/stroke pair (`#ffffff` fill, `#000000` stroke, for legibility over a photo), same duplicate-instance pattern already noted for this element. This is a font not seen anywhere else in the 5 decks; since Halle is the only surviving example, treat it as canonical for this element specifically rather than folding it into the 3-font baseline. |
+| `TXT_THEME_WORLD_NAME` | Text Placeholder | Overlay caption on each card, mandatory (`docs/open-questions.md` #8/#24) — same field/mechanism as `PAGE_03_THEME_SHOWCASE`/`PAGE_06_LOCAL_MOTIFS`, not a dedicated field. `HelveticaNeue-Medium`, 14.19pt — measured as a fill/stroke pair (`#ffffff` fill, `#000000` stroke, for legibility over a photo). This is a font not seen anywhere else in the 5 decks and different from `TXT_THEME_WORLD_NAME`'s styling elsewhere (`HelveticaNeue-CondensedB`, 14.26pt, `#231f20` on `PAGE_01`/`02`/`06`) — same field, page-type-specific styling, matching how other reused fields (e.g. `IMG_THEME_WORLD_PHOTO`) already get different treatments per page type. |
+
+**Note — content discrepancy, not reopened as a question:** Halle's the
+only deck with a visible instance of this caption, and it reads
+"Hallescher Weihnachtsmarkt" — the market's name, matching none of Halle's
+actual theme-world names elsewhere in the same deck. The designer confirmed
+the field itself is `TXT_THEME_WORLD_NAME`, so this specific instance is
+now understood to be a **content mistake in the Halle reference deck**
+(wrong value entered, not a different field) — same category as this
+deck's other QC-rule-4.4-style slips. Doesn't block the placeholder mapping
+above.
 
 **Not yet resolved before this layout can be called final:**
-- **The caption's field identity is now in question.** `docs/open-questions.md`
-  #8 concluded this caption is "the theme-world name," reusing the same
-  mechanism as `PAGE_03_THEME_SHOWCASE`/`PAGE_06_LOCAL_MOTIFS`'s
-  `TXT_THEME_WORLD_NAME`. But the only measured instance (Halle) reads
-  "Hallescher Weihnachtsmarkt" — the **market's own name**, not any of
-  Halle's actual theme-world names (which are "Historisches Halle",
-  "Händelstadt Halle", "Hallmarkt & Salzstadt", "Märchen- und Familienwelt",
-  "Luther & Reformation" — none of them match). This reads more like the
-  same "market name alone" pattern WP5 already resolved for
-  `PAGE_09_SOCIAL_REACH` (reuse the top-level `city` field, not a per-page
-  field) than like `TXT_THEME_WORLD_NAME`. Built above as a new
-  provisional field name (`TXT_TRANSITION_CAPTION`) rather than reusing
-  either existing field, specifically so this doesn't get wired to the
-  wrong source by default — **needs a designer/Martin confirmation: is this
-  caption the market name, or a specific theme-world name that just happens
-  to coincide with the market name in this one example?** Logged as new
-  `docs/open-questions.md` #24.
-- Logo placement, if any (`docs/open-questions.md` #18) — slide-master-level.
+- Logo file itself not yet supplied (placement is resolved — slide master
+  footer, `docs/open-questions.md` #18).
 
 ---
 
@@ -440,24 +423,17 @@ object exists in any of the 5 decks**, so it's reclassified below.
 |---|---|---|
 | `IMG_INSTAGRAM_MOCKUP` | Picture Placeholder | Instagram-style mockup photo. Frame ratio standardized to **1.33** per the designer (`docs/open-questions.md` #13) — Halle's 1.03 source crop was a mistake, not intentional. |
 
-**Not built as a placeholder — reclassified 2026-08-20:** `docs/03-elements.md`
-originally described this mockup as "captioned with market name," treated in
-`docs/04-fields.md` as reusing the top-level `city` field rather than a
-dedicated one. Re-checked directly against all 5 decks' measurement data:
-**no separate caption text object exists next to the mockup image in any of
-them.** If a market-name caption is wanted here, it's either baked into the
-`IMG_INSTAGRAM_MOCKUP` photo asset itself (same pattern as
-`IMG_KIOSK_SCREENSHOT`'s baked-in labels, `docs/open-questions.md` #21) or
-was never actually part of the source decks' design. Not building a text
-placeholder for it — if this turns out to be wrong, it's a small addition
-later, safer than shipping a placeholder with no confirmed source of truth.
+**Not built as a placeholder — confirmed 2026-08-20** (`docs/open-questions.md`
+#25): the designer confirmed the market-name caption is **baked into the
+`IMG_INSTAGRAM_MOCKUP` photo asset itself** (part of the mocked-up phone
+screen), not a separate overlay the template or generator adds — matching
+the hypothesis already reached from the measurement data (no separate
+caption text object exists in any of the 5 decks) and the same pattern as
+`IMG_KIOSK_SCREENSHOT`'s baked-in labels. No text placeholder needed here.
 
 **Not yet resolved before this layout can be called final:**
-- Whether an Instagram-caption market-name element belongs here at all
-  (above) — worth folding into the next batch of designer questions
-  alongside `docs/open-questions.md` #21, not urgent enough to number
-  separately since nothing in the source decks currently supports it.
-- Logo placement, if any (`docs/open-questions.md` #18) — slide-master-level.
+- Logo file itself not yet supplied (placement is resolved — slide master
+  footer, `docs/open-questions.md` #18).
 
 ---
 
@@ -486,7 +462,8 @@ drafted for all of them, modulo the open items below.
 | `IMG_LANDMARK_PHOTO` | Picture Placeholder | Market landmark hero photo, right side of the slide, full-bleed to the edge. Frame ratio standardized to **0.559** (portrait) per the designer (`docs/open-questions.md` #14) — Erzgebirgsdorf's 0.75 and Halle's 0.684 crops were not intentional per-market discretion. |
 
 **Not yet resolved before this layout can be called final:**
-- Logo placement, if any (`docs/open-questions.md` #18) — slide-master-level,
+- Logo file itself not yet supplied (placement is resolved — slide master
+  footer, `docs/open-questions.md` #18),
   the only item still open across every layout in this template.
 
 ---
@@ -498,21 +475,26 @@ above. **Several are explicitly provisional, not ready to build as final in
 PowerPoint yet** — don't skip straight to WP6 steps 4–7 (building the actual
 `templates/master_v01.pptx`) without checking which:
 
-- `PAGE_03_THEME_SHOWCASE` — caption styling unresolved (`docs/open-questions.md` #19).
-- `PAGE_05_USER_FLOW` — 1-vs-2 output-card image fields unresolved (#20).
-- `PAGE_06_LOCAL_MOTIFS` — intro-paragraph wording (#22) and stats-callout
-  wording (#23) both unresolved; per-cell motif image aspect ratios need a
-  PowerPoint-time decision, not a designer answer.
-- `PAGE_08_TRANSITION` — overlay caption's field identity unresolved (#24).
-- `PAGE_09_SOCIAL_REACH` — possible missing market-name caption element,
-  informal, not yet a numbered question.
-- Every layout — logo placement (#18) is still open and affects the slide
-  master.
+**Update 2026-08-20: the designer answered the full question batch (#18–#25)
+the same day it was sent.** All 10 page types are now content-final except
+for the items below, which are genuinely still open — not "provisional
+pending designer input" anymore, just leftover logistics/decisions:
+
+- `PAGE_03_THEME_SHOWCASE` / `PAGE_06_LOCAL_MOTIFS` — the 2-up / per-cell
+  motif image split ratios are **not measurable from source** (flattened
+  images) and were never going to be answered by the designer — decide
+  directly in PowerPoint when each layout is laid out.
+- `PAGE_05_USER_FLOW` — same category: individual `IMG_USER_FLOW_CARD_1`/`_2`
+  aspect ratio for the now-confirmed vertical stack, decide in PowerPoint.
+- **Logo file** — placement is resolved (slide master footer, every slide),
+  but the actual logo asset (PNG acceptable) hasn't been supplied yet.
+  Follow up on this specifically before finishing WP6 step 2.
 
 `PAGE_01_TITLE`, `PAGE_02_SERVICE`, `PAGE_04_REFERENCES`,
-`PAGE_07_BESTSELLERS`, `PAGE_10_CONTACT` have no open items and can be built
-as final now. Next session: send the newly-logged questions (#19–#24, plus
-#18/#21) to the designer/Martin as a consolidated batch (matching how the
-first two rounds of `docs/open-questions.md` were sent), then start WP6
-steps 1–2 (slide master: 16:9 dimensions, background fill, fonts — none of
-which are blocked) while answers are pending.
+`PAGE_07_BESTSELLERS`, `PAGE_10_CONTACT` had no open items already.
+`PAGE_03`, `PAGE_05`, `PAGE_06`, `PAGE_08`, `PAGE_09` are now also
+content-final per the designer's answers — only the PowerPoint-time layout
+decisions above remain. Next session: get the logo file, then start WP6
+steps 1–6 in PowerPoint (slide master: 16:9 dimensions, `#f2eae0`
+background, fonts, logo footer; then the 10 layouts themselves) — nothing
+left is blocked on the designer.
