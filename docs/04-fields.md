@@ -48,6 +48,14 @@ seem obvious):
   `PAGE_06_LOCAL_MOTIFS` section for the exact conditional text.
   **Position 3+ is unresolved** (`docs/open-questions.md` #15) — the
   generator's placeholder behaviour there is provisional until answered.
+- **`PAGE_06_LOCAL_MOTIFS`'s intro paragraph (`TXT_MOTIF_INTRO`), reclassified
+  2026-08-19.** Previously catalogued below as an authored field, but
+  `docs/03-elements.md` already classified it as fixed/computed-by-position
+  (same mechanism as the headline and stats callout above), and re-measuring
+  all 5 decks confirms it: the wording is tied to table position, not chosen
+  per market. Removed from the field table below. Exact per-position text is
+  provisional pending `docs/open-questions.md` #22 (positions 1–2's wording
+  disagrees across decks; position 3's is already confirmed by measurement).
 
 ## Text fields (`TXT_`)
 
@@ -60,7 +68,6 @@ seem obvious):
 | `TXT_MOTIF_1_NAME` | max. 30 characters | Yes | `PAGE_06_LOCAL_MOTIFS` | "Rudolph" |
 | `TXT_MOTIF_2_NAME` | max. 30 characters | Optional — a table can have 1–3 motif rows | `PAGE_06_LOCAL_MOTIFS` | "Adalbert von Magdeburg" |
 | `TXT_MOTIF_3_NAME` | max. 30 characters | Optional | `PAGE_06_LOCAL_MOTIFS` | "Schneekönigin" |
-| `TXT_MOTIF_INTRO` | max. 140 characters | Mandatory on tables at position 1–2; presence at position 3+ still unconfirmed (see open question) | `PAGE_06_LOCAL_MOTIFS` | "Jedes Motiv wird individuell passend zu Ihrem Event gestaltet — Ihre Besucher werden Teil Ihrer Erlebniswelt. Das teilen sie." |
 | `TXT_KIOSK_BACKGROUND_LABEL` | max. 30 characters (provisional — not separately measured in WP4) | Yes | `PAGE_05_USER_FLOW` | "Kaiser-Otto-Pfalz" |
 
 `TXT_KIOSK_BACKGROUND_LABEL` note: `docs/02-page-types.md`'s QC rule 4.4

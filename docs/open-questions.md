@@ -67,6 +67,10 @@ everywhere, not 5 independent choices — one combined question rather than 5:
    der Besucher teilen ihr Motiv aktiv auf Facebook, Instagram oder TikTok
    — mit Ihrem Markt als Kontext." This callout must always appear on the
    **first** motif table (theme 1) — see question 10 below, same answer.
+   **Reopened 2026-08-19 — see question 23.** This answer turns out to have
+   only compared 2 of the (at least) 2 wordings that actually exist across
+   the 5 decks, but the deck-count majority favours the *other* wording —
+   worth re-confirming before treating this as settled.
 8. `PAGE_08_TRANSITION`: only Halle has an overlay caption with the market
    name on the output-card photos; the other 4 decks don't. **Resolved
    (2026-08-18) — and the premise was wrong.** It's not market-name
@@ -236,3 +240,75 @@ to match?** All answered above — see per-item resolutions.
     too (question 15's answer means position 3 gets a real headline
     again, unlike what was measured) — not explicitly confirmed, don't
     assume either way.
+    **Position-3 presence resolved by measurement, 2026-08-19 (no designer
+    input needed for this part):** yes, it's present — both decks that
+    reach a 3rd motif table (Basel, Halle) carry an identical dedicated
+    text there, "Gemeinsam mit Ihnen entwickeln wir die Charaktere, die
+    perfekt zu Ihrem Markt passen." (87 chars). **But re-measuring all 5
+    decks (not just the samples this question was originally answered
+    from) found the wording disagreement is bigger than this question
+    captured — see new question 22 below.**
+
+## G. Found while building WP6, `PAGE_06_LOCAL_MOTIFS` (new, 2026-08-19)
+
+22. **Intro-paragraph wording (question 16 above) needs re-confirming with
+    the full picture.** Question 16 was answered from 2 samples and settled
+    on one canonical text for position 1. Re-measuring all 5 decks for
+    `docs/05-template.md` found:
+    - Position 1: 3 of 5 decks agree (Basel/Freiburg/Magdeburg) on "Jedes
+      Motiv wird individuell passend zu Ihrem Event gestaltet — Ihre
+      Besucher werden Teil Ihrer Erlebniswelt. Das teilen sie." (127
+      chars) — this matches question 16's answer, so that part still
+      holds. Halle and Erzgebirgsdorf each use their own different
+      wording instead (see `docs/03-elements.md`'s `PAGE_06_LOCAL_MOTIFS`
+      section, open question 4, for the exact texts).
+    - Position 2: same 3 decks agree on a *different* text, "Ein Event.
+      Mehrere Erlebniswelten. Jedes Motiv erzählt eine eigene Geschichte –
+      perfekt abgestimmt auf Ihre Veranstaltung." (125 chars) — this
+      position was never asked about before. Halle reuses its own
+      position-1 text verbatim at position 2 instead of using a distinct
+      one (reads like a stale copy-paste, same shape as the section-B
+      bugs already resolved elsewhere).
+    - Position 3: unambiguous, no question needed (see question 16's
+      update above).
+
+    **Question for the designer:** is the Basel/Freiburg/Magdeburg
+    majority wording the intended canonical text for positions 1 and 2
+    (with Halle/Erzgebirgsdorf being further examples of decks with
+    outdated copy, same pattern as section B), or is there a different
+    intended pairing? Don't build the "final" wording into
+    `docs/05-template.md` without this answer — the majority text is
+    usable as a provisional working draft in the meantime, clearly marked
+    as such.
+23. **Stats callout wording (question 7 above) needs re-confirming — the
+    original answer wasn't shown the full picture either.** Re-measuring
+    all 5 decks found a second wording, present in 3 of 5 decks (Basel,
+    Freiburg, Magdeburg — a majority): "70 % der Besucher teilen ihr
+    Erlebnis aktiv auf Facebook, Instagram oder TikTok — und machen Ihre
+    Veranstaltung zu einem Teil ihrer persönlichen Erinnerung." (159
+    chars), vs. question 7's answer of "...mit Ihrem Markt als Kontext."
+    (108 chars), which only Erzgebirgsdorf and Halle (2 of 5) actually
+    use. Separately, the callout's *placement* rule (attach to whichever
+    table has the "Jede Karte..." headline, per question 10) holds
+    correctly in Freiburg/Magdeburg/Halle but not in Basel/Erzgebirgsdorf,
+    where it's attached to the "Das nehmen..." table instead — a further,
+    distinct bug in those 2 decks. **Question for the designer:** which
+    wording is actually canonical, given the majority now points the
+    opposite way from question 7's answer? Don't build the "final" wording
+    into `docs/05-template.md` without this answer.
+24. **`PAGE_08_TRANSITION`'s overlay caption (question 8 above) — is it
+    really the theme-world name, or the market name?** Question 8 concluded
+    it's the theme-world name (same field/mechanism as
+    `PAGE_03_THEME_SHOWCASE`/`PAGE_06_LOCAL_MOTIFS`). Re-measured while
+    building `docs/05-template.md` (2026-08-20): the only surviving example
+    (Halle, the other 4 decks are missing this caption per question 8's own
+    resolution) reads "Hallescher Weihnachtsmarkt" — the market's own name,
+    which doesn't match any of Halle's actual theme-world names elsewhere
+    in the same deck. **Question for the designer:** is this caption meant
+    to show the market name (reusing the same field already used on
+    `PAGE_09_SOCIAL_REACH`'s Instagram caption), or a theme-world name that
+    just happens to coincide with the market name in this one example (and
+    if so, which theme, given a deck can have several)? Built in
+    `docs/05-template.md` as a new provisional field (`TXT_TRANSITION_CAPTION`)
+    pending this answer, rather than wiring it to either existing field by
+    assumption.
