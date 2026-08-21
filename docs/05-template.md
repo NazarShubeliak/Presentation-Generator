@@ -35,11 +35,22 @@ documented font-substitution artifact in the Erzgebirgsdorf file (see
 `docs/03-elements.md`, `PAGE_07_BESTSELLERS`), not a 4th real font. Treat
 `HelveticaNeue-CondensedB` as canonical.
 
-**Not yet mapped:** which font/size combination is used by which specific
-text element per page type (e.g. exact headline vs. body vs. caption
-sizes). Will be resolved page-type-by-page-type as the template is built,
-cross-referencing `docs/03-elements.md`'s per-element character counts
-against `docs/measurements/by_page_type.json`.
+**Now fully mapped** — every page type's section below specifies exact
+font/size/colour per element, cross-referenced against
+`docs/measurements/by_page_type.json`.
+
+**New blocker, found 2026-08-20 while building the slide master in
+PowerPoint** (`docs/open-questions.md` #26): none of these 3 fonts are
+actually installed on the machine building the template, and Adobe
+Illustrator/Creative Cloud (which would normally bundle at least Myriad
+Pro) is confirmed not present either. Only the font *names* were ever
+derived from the `.ai` files' internal references — the actual font files
+were never supplied, same gap category as the logo. Asked Martin for the
+files. **Not blocking:** `Гайд_побудова_PowerPoint_WP6.md` recommends
+building with system-font substitutes for now (e.g. a condensed bold
+system font in place of `HelveticaNeue-CondensedB`, a standard sans in
+place of `MyriadPro-Regular`) and swapping the 2 theme-font slots once the
+real files arrive.
 
 ### Colours
 
@@ -277,28 +288,30 @@ as unsuccessful and replaced it outright — the table below is the new,
 final scheme, not a patch on the old one. Stats-callout wording separately
 confirmed (#23) as the text already used before — no change there.
 
-**Fixed content — type directly into the layout, not a placeholder. Em-dash
-(—) unified across all positions per the designer's note.**
+**Build-mechanics correction (2026-08-20):** everything in this section
+that varies by table position (headline, subheadline, stats callout,
+column headers, row-number circles) **must be a named placeholder, not
+text typed directly into the layout** — a single layout is reused up to 6
+times in one deck (Magdeburg), each occurrence needing a different state.
+This corrects earlier drafts of this section that listed them as "fixed
+content." Same precedent as `PAGE_04_REFERENCES`'s `TXT_REFERENCES_FOOTER`:
+computed by WP8, not authored in the input JSON, but still a real
+placeholder WP8 writes into.
 
-| Element | Content | Formatting note |
-|---|---|---|
-| World 1 — headline | "Das nehmen Ihre Besucher mit — personalisiert, sofort, teilbar." | `HelveticaNeue-CondensedB`, 24.87pt, `#231f20`. |
-| World 1 — subheadline | "Jedes Motiv wird individuell auf Ihren Weihnachtsmarkt abgestimmt — Ihre Besucher werden Teil Ihrer Erlebniswelt. Das teilen sie." | `MyriadPro-Regular`, 11.13pt, `#231f20`. |
-| World 1 — stats callout | "70 % der Besucher teilen ihr Motiv aktiv auf Facebook, Instagram oder TikTok — mit Ihrem Markt als Kontext." | `MyriadPro-Regular`, 11.87pt — "70 %" in `#c5923b` (gold), rest in `#efe7de` (cream), inside a dark panel (`#001518` fill, `#c5923b` stroke). **Confirmed final** (`docs/open-questions.md` #23) — always paired with world 1, same as before. |
-| World 2 — headline | "Ihre Charaktere. Ihre Geschichte." | Same formatting as world 1's headline. |
-| World 2 — subheadline | "Gemeinsam mit Ihnen entwickeln wir die Charaktere, die perfekt zu Ihrem Markt passen." | Same formatting as world 1's subheadline. |
-| World 3 — headline | "Ein Weihnachtsmarkt. Mehrere Erlebniswelten." | Same formatting. |
-| World 3 — subheadline | "Jedes Motiv erzählt eine eigene Geschichte — perfekt abgestimmt auf Ihre Veranstaltung und Ihre Stadt." | Same formatting. |
-| World 4+ — headline/subheadline | None — no fixed rotating text at all, only the theme-world-name caption (`TXT_THEME_WORLD_NAME` placeholder, below). | — |
-| Column headers, first table of a sequence | "Fotokarte", "Hintergrund", "AR-Maske" | `MyriadPro-Regular`, 11.87pt, `#231f20`. One combined text run across all 3 columns. |
-| Column headers, continuation table | "Fotokarte" (unchanged) + "Hintergrund", "AR-Maske" | Same formatting, but measured as two separate text boxes on continuation slides — "Fotokarte" stays in place, "Hintergrund"/"AR-Maske" repeat. Build as 2 separate text boxes to match. |
-| Row-number circles | "1"/"2"/"3" on a table's first appearance; "4"/"5"/"6" if a theme continues onto a second slide | `CoreSerifN-75Black`, 22.37pt, `#c5923b`. Structural, not a content field — WP8 writes the number, not the input JSON. |
-
-**Placeholders — name exactly as shown, via Selection Pane:**
+**Placeholders — name exactly as shown, via Selection Pane. WP8 decides
+what to write into each based on this table's position among the deck's
+`PAGE_06_LOCAL_MOTIFS` occurrences — none of these values come from the
+input JSON:**
 
 | Placeholder name | Type | Notes |
 |---|---|---|
-| `TXT_THEME_WORLD_NAME` | Text Placeholder | Same field as `PAGE_01_TITLE`/`PAGE_02_SERVICE`/`PAGE_08_TRANSITION` — mandatory here. Max 55 characters. `HelveticaNeue-CondensedB`, 14.26pt, `#231f20`, top-left, directly under the subheadline on world 1–3 (per the designer's answer, "Plätzhalter unter dem Untertitel"); on world 4+ it's the only text on the slide besides the motif table. Present on **every** world position, no exceptions — matches the already-established 100%-mandatory caption rule (`docs/open-questions.md` #8). |
+| `TXT_MOTIF_HEADLINE` | Text Placeholder | World 1: "Das nehmen Ihre Besucher mit — personalisiert, sofort, teilbar." World 2: "Ihre Charaktere. Ihre Geschichte." World 3: "Ein Weihnachtsmarkt. Mehrere Erlebniswelten." World 4+: leave empty/hidden. `HelveticaNeue-CondensedB`, 24.87pt, `#231f20`. |
+| `TXT_MOTIF_SUBHEADLINE` | Text Placeholder | World 1: "Jedes Motiv wird individuell auf Ihren Weihnachtsmarkt abgestimmt — Ihre Besucher werden Teil Ihrer Erlebniswelt. Das teilen sie." World 2: "Gemeinsam mit Ihnen entwickeln wir die Charaktere, die perfekt zu Ihrem Markt passen." World 3: "Jedes Motiv erzählt eine eigene Geschichte — perfekt abgestimmt auf Ihre Veranstaltung und Ihre Stadt." World 4+: empty/hidden. `MyriadPro-Regular`, 11.13pt, `#231f20`. **Recommended default, not designer-confirmed:** leave empty on row-limit continuation tables too (same theme, overflow rows) — the designer's new scheme was only specified per *theme world*, not asked about a continuation of the same theme; treat this as a working assumption (`docs/03-elements.md`), worth a quick follow-up question. |
+| `TXT_MOTIF_STATS_CALLOUT` | Text Placeholder | World 1 only: "70 % der Besucher teilen ihr Motiv aktiv auf Facebook, Instagram oder TikTok — mit Ihrem Markt als Kontext." (108 chars, confirmed final, `docs/open-questions.md` #23). Empty/hidden on every other occurrence. `MyriadPro-Regular`, 11.87pt — "70 %" in `#c5923b` (gold), rest in `#efe7de` (cream), inside a dark panel (`#001518` fill, `#c5923b` stroke) — **build the dark panel shape as a permanent part of the layout** (it's always in the same place when shown), only the text is placeholder content. |
+| `TXT_MOTIF_COLUMN_HEADER_1` | Text Placeholder | First table of a sequence: "Fotokarte". Continuation table: same text, same position — this one doesn't actually change, can be typed as fixed content instead if simpler. `MyriadPro-Regular`, 11.87pt, `#231f20`. |
+| `TXT_MOTIF_COLUMN_HEADER_23` | Text Placeholder | First table: "Hintergrund", "AR-Maske" combined with header 1 into one run ("Fotokarte / Hintergrund / AR-Maske") — if built as 3 separate placeholders instead of measurement's 1-vs-2-box split, WP8 can just always write the 2-part text here; simplifies the continuation-vs-first-table logic to "this placeholder's content never changes." Same formatting. |
+| `TXT_MOTIF_ROW_NUMBER_1` / `_2` / `_3` | Text Placeholder ×3 | First table: "1"/"2"/"3". Continuation table: "4"/"5"/"6". `CoreSerifN-75Black`, 22.37pt, `#c5923b`. |
+| `TXT_THEME_WORLD_NAME` | Text Placeholder | Same field as `PAGE_01_TITLE`/`PAGE_02_SERVICE`/`PAGE_08_TRANSITION` — mandatory here, this one genuinely is a WP5-authored field, not computed. Max 55 characters. `HelveticaNeue-CondensedB`, 14.26pt, `#231f20`, top-left, directly under the subheadline on world 1–3; on world 4+ it's the only text on the slide besides the motif table. Present on **every** world position, no exceptions (`docs/open-questions.md` #8). |
 | `TXT_MOTIF_1_NAME` / `TXT_MOTIF_2_NAME` / `TXT_MOTIF_3_NAME` | Text Placeholder | `_1` mandatory, `_2`/`_3` optional (1–3 motif rows per table). Max 30 characters. `MyriadPro-Regular`, 8.34pt, `#231f20`. |
 | `IMG_MOTIF_1_PHOTO` / `IMG_MOTIF_1_BACKGROUND` / `IMG_MOTIF_1_MASK` | Picture Placeholder ×3 | Per-cell images per the designer's resolved architecture (`docs/open-questions.md` #9) — generator composes the 3×3 grid, template does not receive one flattened table image. Aspect ratio **not measurable from source** (source files flatten the whole table into one image) — decide directly in PowerPoint when this layout is laid out, same treatment as `PAGE_03_THEME_SHOWCASE`'s 2-up split. |
 | `IMG_MOTIF_2_*` / `IMG_MOTIF_3_*` (same 3 sub-fields each) | Picture Placeholder ×6 | Optional, matching `TXT_MOTIF_2_NAME`/`TXT_MOTIF_3_NAME`. Same aspect-ratio caveat. |
@@ -306,10 +319,8 @@ confirmed (#23) as the text already used before — no change there.
 **Not yet resolved before this layout can be called final:**
 - Per-cell motif image aspect ratios (photo/background/mask) — not
   measurable from the flattened source, decide directly in PowerPoint.
-- Row-limit continuation mechanics (reusing the 3-row structure with
-  circles 4/5/6, and the column-header split into 2 boxes) are documented
-  above from measurement, but haven't been built/tested in an actual 16:9
-  layout yet — re-verify once this layout exists in PowerPoint.
+- Whether `TXT_MOTIF_HEADLINE`/`_SUBHEADLINE` should be empty on a
+  row-limit continuation table (working assumption above, not confirmed).
 - Logo file itself not yet supplied (placement is resolved — slide master
   footer, `docs/open-questions.md` #18).
 

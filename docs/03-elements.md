@@ -109,19 +109,47 @@ length across WP4/WP5/WP6 — see the historical open questions further down
 this section) was explicitly discarded by the designer as unsuccessful, not
 patched. The table below is the new, final scheme.
 
+**Build-mechanics correction (2026-08-20, found while writing the
+PowerPoint build guide):** `PAGE_06_LOCAL_MOTIFS` gets **one** PowerPoint
+layout, but a single deck can place up to 6 occurrences of it (Magdeburg),
+each needing a different headline/subheadline/stats state (world 1/2/3/4+)
+and a different row-circle/column-header state (first table vs.
+continuation). One layout cannot show 4+ different static texts at once —
+so despite being "computed, not a WP5 field," these elements must be **named
+placeholders** that WP8 fills per-occurrence, exactly the precedent already
+established for `PAGE_04_REFERENCES`'s `TXT_REFERENCES_FOOTER` (computed,
+not authored, still a real placeholder). Earlier drafts of this table
+called these "fixed content, type directly into the layout" — that was
+wrong and would have produced a template where every `PAGE_06` slide in a
+deck shows identical headline text. Corrected below and in
+`docs/05-template.md`.
+
 | Element | Fixed / Variable | Detail |
 |---|---|---|
-| Headline + subheadline (per motif-table position, "world 1/2/3/4+") | **Fixed, computed by table position — not a WP5 field** | World 1: headline "Das nehmen Ihre Besucher mit — personalisiert, sofort, teilbar.", subheadline "Jedes Motiv wird individuell auf Ihren Weihnachtsmarkt abgestimmt — Ihre Besucher werden Teil Ihrer Erlebniswelt. Das teilen sie." World 2: headline "Ihre Charaktere. Ihre Geschichte.", subheadline "Gemeinsam mit Ihnen entwickeln wir die Charaktere, die perfekt zu Ihrem Markt passen." World 3: headline "Ein Weihnachtsmarkt. Mehrere Erlebniswelten.", subheadline "Jedes Motiv erzählt eine eigene Geschichte — perfekt abgestimmt auf Ihre Veranstaltung und Ihre Stadt." World 4+: no fixed headline/subheadline at all, only the theme-world-name caption. Em-dash (—) unified across all positions. Headline `HelveticaNeue-CondensedB`, 24.87pt, `#231f20`; subheadline `MyriadPro-Regular`, 11.13pt, `#231f20`. |
+| Headline + subheadline (per motif-table position, "world 1/2/3/4+") | **Computed, not a WP5 field — needs a named placeholder** (see correction above) | World 1: headline "Das nehmen Ihre Besucher mit — personalisiert, sofort, teilbar.", subheadline "Jedes Motiv wird individuell auf Ihren Weihnachtsmarkt abgestimmt — Ihre Besucher werden Teil Ihrer Erlebniswelt. Das teilen sie." World 2: headline "Ihre Charaktere. Ihre Geschichte.", subheadline "Gemeinsam mit Ihnen entwickeln wir die Charaktere, die perfekt zu Ihrem Markt passen." World 3: headline "Ein Weihnachtsmarkt. Mehrere Erlebniswelten.", subheadline "Jedes Motiv erzählt eine eigene Geschichte — perfekt abgestimmt auf Ihre Veranstaltung und Ihre Stadt." World 4+: no fixed headline/subheadline at all, only the theme-world-name caption. Em-dash (—) unified across all positions. Headline `HelveticaNeue-CondensedB`, 24.87pt, `#231f20`; subheadline `MyriadPro-Regular`, 11.13pt, `#231f20`. WP8 picks which of the 4 states to write in based on this table's position among the deck's `PAGE_06` occurrences — not something the input JSON authors directly. |
 | Theme-world name (placeholder directly under the subheadline on worlds 1–3; the only text on worlds 4+, above the headline position) | **Variable** | 15–47 chars observed (Erzgebirgsdorf's "Märchenwelt Schwerin" — data-quality flag, `docs/02-page-types.md`, not a clean example). **Limit: 55 characters.** `HelveticaNeue-CondensedB`, 14.26pt, `#231f20`. Mandatory on every world position — matches the already-established 100%-mandatory caption rule (`docs/open-questions.md` #8). |
 | Motif row: photo caption/name | **Variable**, 1–3 rows per table | 6–23 chars observed (e.g. "Rudolph" to "Adalbert von Magdeburg"). **Limit: 30 characters.** Typography: `MyriadPro-Regular`, 8.34pt, `#231f20`. |
-| Column headers ("Fotokarte", "Hintergrund", "AR-Maske") | **Fixed** | Identical everywhere, only present in full on the first table of a sequence — continuation/later tables show "Fotokarte" (unchanged position) plus a separate "Hintergrund / AR-Maske" text box. Typography: `MyriadPro-Regular`, 11.87pt, `#231f20`. |
-| 70%-share stats callout ("70 % der Besucher teilen...") | **Fixed, conditional — not a WP5 field** | "70 % der Besucher teilen ihr Motiv aktiv auf Facebook, Instagram oder TikTok — mit Ihrem Markt als Kontext." (108 chars) — **confirmed final by the designer, 2026-08-20** (`docs/open-questions.md` #23), no change from the original `docs/open-questions.md` #7 answer despite a majority of reference decks (3 of 5) having used a different, longer wording. Always paired with world 1. Typography: `MyriadPro-Regular`, 11.87pt — mixed `#c5923b` (gold, "70 %") / `#efe7de` (cream, rest of line), inside a dark panel (`#001518` fill, `#c5923b` stroke). |
-| Row-limit ("1/2/3" numbered circle) | **Fixed structural**, not a content field | Table has exactly 3 row-slots. A theme with more than 3 motifs continues onto a second slide reusing the same 3-row structure with circles numbered 4/5/6 (confirmed via Freiburg: 5 motifs = 3 + 2). Typography: `CoreSerifN-75Black`, 22.37pt, `#c5923b`. |
+| Column headers ("Fotokarte", "Hintergrund", "AR-Maske") | **Computed, not a WP5 field — needs a named placeholder** | Identical everywhere, only present in full on the first table of a sequence — continuation/later tables show "Fotokarte" (unchanged position) plus a separate "Hintergrund / AR-Maske" text box. Same per-occurrence problem as the headline row — WP8 must pick first-table vs. continuation text per slide. Typography: `MyriadPro-Regular`, 11.87pt, `#231f20`. |
+| 70%-share stats callout ("70 % der Besucher teilen...") | **Computed, conditional — not a WP5 field, needs a named placeholder** | "70 % der Besucher teilen ihr Motiv aktiv auf Facebook, Instagram oder TikTok — mit Ihrem Markt als Kontext." (108 chars) — **confirmed final by the designer, 2026-08-20** (`docs/open-questions.md` #23), no change from the original `docs/open-questions.md` #7 answer despite a majority of reference decks (3 of 5) having used a different, longer wording. Always paired with world 1, absent on every other occurrence — WP8 must clear/hide this placeholder on world 2+. Typography: `MyriadPro-Regular`, 11.87pt — mixed `#c5923b` (gold, "70 %") / `#efe7de` (cream, rest of line), inside a dark panel (`#001518` fill, `#c5923b` stroke). |
+| Row-limit ("1/2/3" numbered circle) | **Computed structural, needs named placeholders** | Table has exactly 3 row-slots. A theme with more than 3 motifs continues onto a second slide reusing the same 3-row structure with circles numbered 4/5/6 (confirmed via Freiburg: 5 motifs = 3 + 2). WP8 writes the digit per occurrence — not literally fixed since it's "1/2/3" on a first table and "4/5/6" on a continuation. Typography: `CoreSerifN-75Black`, 22.37pt, `#c5923b`. |
 | Motif table graphic (Fotokarte + Hintergrund + AR-Maske columns, all rows) | **Variable — 9 separate per-cell images, not 1** | Source decks flatten this into one image per table, but the resolved architecture (`docs/open-questions.md` #9) builds it from 9 separate images the generator composes. Per-cell aspect ratios remain **not measurable** from the source — decide directly in PowerPoint when this layout is built, same treatment as `PAGE_03_THEME_SHOWCASE`'s 2-up photo split. |
 
-**No open questions remain for this page type's content** as of 2026-08-20.
-Only PowerPoint-layout work is left (per-cell motif image aspect ratios,
-row-limit continuation mechanics) — see `docs/05-template.md`.
+**Content wording is settled.** Two mechanical items remain, both flagged
+2026-08-20, neither a wording question for the designer:
+- Per-cell motif image aspect ratios — not measurable from source, decide
+  in PowerPoint (see table above).
+- **New, small gap: does a row-limit continuation table (same theme,
+  overflow rows) carry any headline/subheadline text under the new
+  scheme?** The designer's new rotation (#22) only specifies text for
+  "world 1/2/3/4+" — distinct *themes* — and was never asked about a
+  continuation of the *same* theme onto a second slide. The old reference
+  decks showed a headline on their continuation slides, but that's an
+  artifact of the now-fully-discarded old scheme, not evidence for the new
+  one. Recommended default for the build guide: **no headline/subheadline
+  on a continuation table** (it already showed its theme's headline on the
+  first slide) — same visual shape as the already-settled "world 4+ has no
+  headline" case. Treat as a working assumption, not a confirmed answer;
+  worth a quick follow-up question rather than silently locking it in.
 
 <details>
 <summary>Historical open-question thread (2026-08-17 to 2026-08-19,

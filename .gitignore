@@ -27,3 +27,10 @@ CLAUDE.md
 .vscode/
 Thumbs.db
 .DS_Store
+
+# Licensed commercial fonts — not ours to redistribute
+*.ttf
+*.otf
+
+# PowerPoint lock/autosave files
+~$*.pptx

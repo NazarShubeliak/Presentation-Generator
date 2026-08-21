@@ -373,3 +373,23 @@ to match?** All answered above — see per-item resolutions.
     yes, a caption exists, but it's baked into the `IMG_INSTAGRAM_MOCKUP`
     photo asset itself (part of the mocked-up phone screen) — not a
     separate field the template or generator overlays.
+
+## I. Blocking WP6 step 2 — font files (new, 2026-08-20)
+
+26. **None of the 3 derived CI fonts (`HelveticaNeue-CondensedB`,
+    `MyriadPro-Regular`, `CoreSerifN-75Black`) are installed on the machine
+    building the template, and Adobe Illustrator/Creative Cloud — which
+    would normally bundle at least Myriad Pro — is confirmed **not**
+    installed either.** These are commercial Adobe/Linotype/Zetafonts
+    fonts; the `.ai` source files reference them by name (that's how
+    `src/extract_ai_measurements.py` read the font data), but no actual
+    font *files* were ever supplied, only the derived names. Same category
+    of gap as the still-missing logo file (#18) — both are assets Martin
+    needs to provide, not something derivable from the reference decks
+    themselves. **Question for Martin:** can he supply the actual font
+    files (`.otf`/`.ttf`) used by the design agency? **Not blocking
+    progress** — `Гайд_побудова_PowerPoint_WP6.md` recommends building with
+    close system-font substitutes for now (position/size work is
+    unaffected) and swapping the theme fonts once the real files arrive —
+    changing 2 dropdown values in the theme-fonts dialog re-applies
+    everywhere automatically.
