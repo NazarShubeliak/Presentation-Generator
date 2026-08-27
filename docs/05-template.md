@@ -164,6 +164,21 @@ Erzgebirgsdorf's headline, already resolved as an outlier).
   `PAGE_01_TITLE`, applies here too since it's the same field/ratio).
 - Logo placement, if any (`docs/open-questions.md` #18) — slide-master-level,
   affects every layout.
+- **New, found 2026-08-27 sanity-checking the built template against real
+  Basel content:** the source deck's `IMG_THEME_WORLD_PHOTO` isn't actually a
+  plain rectangle — it has a curved arc mask cut into its top-left corner
+  (visible in `docs/slides/basel_2026/slide_02.png`) that keeps it clear of
+  the headline/bullet column. The coordinates derived back in WP6 came from
+  the raw embedded image's bounding box, which is the *rectangle underneath
+  the mask*, not the visible clipped shape — same category of measurement
+  trap as `PAGE_04`/`PAGE_10`'s clipped photos. The currently-built
+  placeholder is a plain rectangle positioned at that raw-bbox coordinate, so
+  it visibly overlaps the text column once a real photo is inserted
+  (confirmed in the sanity-check render). **Deferred to the designer**
+  rather than fixed now: either reposition the plain rectangle further right
+  (simple, loses the arc) or rebuild it as a merged-shape curved mask
+  (matches source, more work) — user's call, not re-derivable from
+  measurement alone.
 
 ---
 
@@ -308,8 +323,7 @@ input JSON:**
 | `TXT_MOTIF_HEADLINE` | Text Placeholder | World 1: "Das nehmen Ihre Besucher mit — personalisiert, sofort, teilbar." World 2: "Ihre Charaktere. Ihre Geschichte." World 3: "Ein Weihnachtsmarkt. Mehrere Erlebniswelten." World 4+: leave empty/hidden. `HelveticaNeue-CondensedB`, 24.87pt, `#231f20`. |
 | `TXT_MOTIF_SUBHEADLINE` | Text Placeholder | World 1: "Jedes Motiv wird individuell auf Ihren Weihnachtsmarkt abgestimmt — Ihre Besucher werden Teil Ihrer Erlebniswelt. Das teilen sie." World 2: "Gemeinsam mit Ihnen entwickeln wir die Charaktere, die perfekt zu Ihrem Markt passen." World 3: "Jedes Motiv erzählt eine eigene Geschichte — perfekt abgestimmt auf Ihre Veranstaltung und Ihre Stadt." World 4+: empty/hidden. `MyriadPro-Regular`, 11.13pt, `#231f20`. **Recommended default, not designer-confirmed:** leave empty on row-limit continuation tables too (same theme, overflow rows) — the designer's new scheme was only specified per *theme world*, not asked about a continuation of the same theme; treat this as a working assumption (`docs/03-elements.md`), worth a quick follow-up question. |
 | `TXT_MOTIF_STATS_CALLOUT` | Text Placeholder | World 1 only: "70 % der Besucher teilen ihr Motiv aktiv auf Facebook, Instagram oder TikTok — mit Ihrem Markt als Kontext." (108 chars, confirmed final, `docs/open-questions.md` #23). Empty/hidden on every other occurrence. `MyriadPro-Regular`, 11.87pt — "70 %" in `#c5923b` (gold), rest in `#efe7de` (cream), inside a dark panel (`#001518` fill, `#c5923b` stroke) — **build the dark panel shape as a permanent part of the layout** (it's always in the same place when shown), only the text is placeholder content. |
-| `TXT_MOTIF_COLUMN_HEADER_1` | Text Placeholder | First table of a sequence: "Fotokarte". Continuation table: same text, same position — this one doesn't actually change, can be typed as fixed content instead if simpler. `MyriadPro-Regular`, 11.87pt, `#231f20`. |
-| `TXT_MOTIF_COLUMN_HEADER_23` | Text Placeholder | First table: "Hintergrund", "AR-Maske" combined with header 1 into one run ("Fotokarte / Hintergrund / AR-Maske") — if built as 3 separate placeholders instead of measurement's 1-vs-2-box split, WP8 can just always write the 2-part text here; simplifies the continuation-vs-first-table logic to "this placeholder's content never changes." Same formatting. |
+| `TXT_MOTIF_COLUMN_HEADER_1` / `_2` / `_3` | Text Placeholder ×3 | **Revised 2026-08-27** (sanity-check build): built as 3 separate placeholders, one per column ("Fotokarte" / "Hintergrund" / "AR-Maske"), each positioned over its own column — not the earlier 2-box (`_1`/`_23`) split. Content never varies by table position (first table or continuation, all 5 decks' actual first-table instances show all 3 labels separately) — WP8 always writes the same 3 strings, so these could equally be typed as fixed content instead of placeholders. `MyriadPro-Regular`, 11.87pt, `#231f20`. Superseded the original 2-box design below, which turned out unbuildable: the combined `_23` box (meant to span 2 columns) doesn't reliably fit "Hintergrund" + "AR-Maske" on one line at the correct font size without wrapping/overlapping the column-3 content — discovered only once real text was tested in the actual built layout, not caught at spec-writing time. |
 | `TXT_MOTIF_ROW_NUMBER_1` / `_2` / `_3` | Text Placeholder ×3 | First table: "1"/"2"/"3". Continuation table: "4"/"5"/"6". `CoreSerifN-75Black`, 22.37pt, `#c5923b`. |
 | `TXT_THEME_WORLD_NAME` | Text Placeholder | Same field as `PAGE_01_TITLE`/`PAGE_02_SERVICE`/`PAGE_08_TRANSITION` — mandatory here, this one genuinely is a WP5-authored field, not computed. Max 55 characters. `HelveticaNeue-CondensedB`, 14.26pt, `#231f20`, top-left, directly under the subheadline on world 1–3; on world 4+ it's the only text on the slide besides the motif table. Present on **every** world position, no exceptions (`docs/open-questions.md` #8). |
 | `TXT_MOTIF_1_NAME` / `TXT_MOTIF_2_NAME` / `TXT_MOTIF_3_NAME` | Text Placeholder | `_1` mandatory, `_2`/`_3` optional (1–3 motif rows per table). Max 30 characters. `MyriadPro-Regular`, 8.34pt, `#231f20`. |
@@ -401,6 +415,12 @@ above.
 **Not yet resolved before this layout can be called final:**
 - Logo file itself not yet supplied (placement is resolved — slide master
   footer, `docs/open-questions.md` #18).
+- **New, found 2026-08-27 sanity-checking the built template:** the
+  `TXT_THEME_WORLD_NAME` caption box (117.9pt wide) is too narrow to fit a
+  long single theme-world name (e.g. "Basler Weihnachtszauber") without
+  breaking mid-word ("Weihnachtsza-uber"). Cosmetic, low priority — widen
+  the box (~150-160pt) whenever the designer next touches this layout.
+  **Deferred to the designer**, not fixed now.
 
 ---
 
@@ -509,3 +529,32 @@ decisions above remain. Next session: get the logo file, then start WP6
 steps 1–6 in PowerPoint (slide master: 16:9 dimensions, `#f2eae0`
 background, fonts, logo footer; then the 10 layouts themselves) — nothing
 left is blocked on the designer.
+
+## Status: all 10 layouts built and sanity-checked (2026-08-27)
+
+All 10 page types are now built in `templates/master_v01.pptx` (logo and
+fonts arrived 2026-08-21, all 3 "easy" layouts `PAGE_04`/`_07`/`_10` finished
+2026-08-27). Sanity-checked by generating one real test slide per layout from
+actual Basel deck content (script kept local only, not in git — see
+git-hygiene notes) and comparing against `docs/slides/basel_2026/`. Found and
+fixed several real build bugs (not spec bugs): `PAGE_06_LOCAL_MOTIFS`'s
+motif-name rows 1/3 had been wired to swapped positions, and its column
+headers needed the `_1`/`_2`/`_3` structural revision documented above;
+`PAGE_07_BESTSELLERS`'s subline text was left truncated mid-build.
+
+**Two items intentionally deferred to the designer, not fixed in this
+template:** `PAGE_02_SERVICE`'s photo mask (documented in that section above)
+and `PAGE_08_TRANSITION`'s caption box width (documented in that section
+above). Both are cosmetic/visual-polish items, not structural.
+
+**Caution for future automated checks:** rendering this template to PNG via
+headless PowerPoint COM automation (`Presentation.SaveAs(..., ppSaveAsPNG)`)
+produced phantom duplicate-text artifacts on `PAGE_01_TITLE`/`PAGE_03`'s
+plated captions and `PAGE_06`'s column headers that do **not** exist in the
+underlying file (confirmed via direct XML inspection — single clean text run
+each time). Trust `python-pptx` shape geometry/XML over this rendering path
+when checking for overlaps or duplicates; only trust the PNG export for
+things geometry can't tell you (actual visual crop of an inserted photo,
+whether a font renders as expected).
+
+Not yet done: WP7 (JSON Schema).
