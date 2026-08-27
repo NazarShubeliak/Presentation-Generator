@@ -62,9 +62,9 @@ seem obvious):
 | Field | Constraint | Mandatory | Used in | Example value |
 |---|---|---|---|---|
 | `TXT_TITLE_SUBLINE` | max. 95 characters | Yes | `PAGE_01_TITLE` | "KI- & AR-Erlebnisinstallationen für den Weihnachtsmarkt Magdeburg" |
-| `TXT_THEME_WORLD_NAME` | max. 25 characters | Optional in `PAGE_01_TITLE`/`PAGE_02_SERVICE` (present only when the deck has >2 theme worlds, computed by the generator — see `docs/03-elements.md`); mandatory in `PAGE_06_LOCAL_MOTIFS`/`PAGE_08_TRANSITION` | `PAGE_01_TITLE`, `PAGE_02_SERVICE`, `PAGE_06_LOCAL_MOTIFS`, `PAGE_08_TRANSITION` | "Kaiser-Otto-Pfalz" |
-| `TXT_THEME_WORLD_NAME_1` | max. 25 characters | Yes | `PAGE_03_THEME_SHOWCASE` | "Luther & Reformation" |
-| `TXT_THEME_WORLD_NAME_2` | max. 25 characters | Optional — present only on a 2-up slide | `PAGE_03_THEME_SHOWCASE` | "Händelstadt Halle" |
+| `TXT_THEME_WORLD_NAME` | max. 55 characters (revised from 25 while writing WP7's schema — the built template's `PAGE_06_LOCAL_MOTIFS` caption box measures to that limit, see `docs/05-template.md`) | Not authored in `PAGE_01_TITLE`/`PAGE_02_SERVICE` at all — computed by the generator from top-level `theme_worlds[0]`, not a per-page field (`docs/open-questions.md` #12); mandatory in `PAGE_06_LOCAL_MOTIFS` | `PAGE_06_LOCAL_MOTIFS` | "Kaiser-Otto-Pfalz" |
+| `TXT_THEME_WORLD_NAME_1` | max. 25 characters on `PAGE_03` / max. 55 characters on `PAGE_08` (name reused across page types with different caption box sizes, same convention as `IMG_THEME_WORLD_PHOTO`'s per-page-type frame ratio) | Yes on both | `PAGE_03_THEME_SHOWCASE`, `PAGE_08_TRANSITION` | "Luther & Reformation" |
+| `TXT_THEME_WORLD_NAME_2` | max. 25 characters on `PAGE_03` (optional, 2-up slide only) / max. 55 characters on `PAGE_08` (mandatory, 2nd output card) | Optional on `PAGE_03`, mandatory on `PAGE_08` | `PAGE_03_THEME_SHOWCASE`, `PAGE_08_TRANSITION` | "Händelstadt Halle" |
 | `TXT_MOTIF_1_NAME` | max. 30 characters | Yes | `PAGE_06_LOCAL_MOTIFS` | "Rudolph" |
 | `TXT_MOTIF_2_NAME` | max. 30 characters | Optional — a table can have 1–3 motif rows | `PAGE_06_LOCAL_MOTIFS` | "Adalbert von Magdeburg" |
 | `TXT_MOTIF_3_NAME` | max. 30 characters | Optional | `PAGE_06_LOCAL_MOTIFS` | "Schneekönigin" |
