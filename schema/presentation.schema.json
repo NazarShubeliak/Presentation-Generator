@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cosmoproducts.local/schema/presentation.schema.json",
+  "title": "Presentation Generator input",
+  "description": "Machine-readable description of one location's presentation. Field names, types and max lengths per docs/04-fields.md (WP5); page-type catalogue per docs/02-page-types.md (WP3).",
+  "type": "object",
+  "required": ["project_id", "location_name", "city", "language", "theme_worlds", "pages"],
+  "additionalProperties": false,
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "Used to name the generated output file (<project_id>_v<NN>.pptx).",
+      "pattern": "^[a-z0-9_]+$",
+      "minLength": 1
+    },
+    "location_name": {
+      "type": "string",
+      "description": "Full market name, e.g. 'Basler Weihnachtsmarkt'.",
+      "minLength": 1
+    },
+    "city": {
+      "type": "string",
+      "description": "Bare city/market name, e.g. 'Basel'. Reused directly wherever the deck needs just the city (PAGE_09_SOCIAL_REACH's Instagram caption, PAGE_04_REFERENCES' computed footer) instead of a duplicate per-page field — see docs/04-fields.md 'Fields not included here'.",
+      "minLength": 1
+    },
+    "language": {
+      "type": "string",
+      "description": "All 5 reference decks are German; kept as a field rather than hardcoded in case a future location needs another language.",
+      "enum": ["de"]
+    },
+    "theme_worlds": {
+      "type": "array",
+      "description": "Ordered list of this deck's theme-world names. PAGE_01_TITLE/PAGE_02_SERVICE's optional theme-world caption is computed by the generator from theme_worlds[0] (only shown when theme_worlds has more than 2 entries) — resolved by the designer, docs/open-questions.md #12, not authored per-page. Every PAGE_03_THEME_SHOWCASE/PAGE_06_LOCAL_MOTIFS/PAGE_08_TRANSITION page occurrence still authors its own TXT_THEME_WORLD_NAME(_N) directly in its own fields (see below) — this list does not replace those, it only drives the PAGE_01/02 computed caption and lets a human/tool see the deck's theme roster at a glance.",
+      "minItems": 1,
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 25
+      }
+    },
+    "pages": {
+      "type": "array",
+      "description": "One entry per physical slide, in deck order. Repeating page types (PAGE_03_THEME_SHOWCASE, PAGE_06_LOCAL_MOTIFS) appear as multiple entries, one per occurrence, each with its own resolved field values — not nested/grouped.",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/page" }
+    }
+  },
+  "$defs": {
+    "image_path": {
+      "type": "string",
+      "description": "Relative path to an image file, e.g. 'images/basel_title.jpg'.",
+      "pattern": "^images/[A-Za-z0-9_\\-./]+\\.(jpe?g|png)$"
+    },
+    "page": {
+      "type": "object",
+      "required": ["page_type", "fields"],
+      "additionalProperties": false,
+      "properties": {
+        "page_type": {
+          "type": "string",
+          "enum": [
+            "PAGE_01_TITLE",
+            "PAGE_02_SERVICE",
+            "PAGE_03_THEME_SHOWCASE",
+            "PAGE_04_REFERENCES",
+            "PAGE_05_USER_FLOW",
+            "PAGE_06_LOCAL_MOTIFS",
+            "PAGE_07_BESTSELLERS",
+            "PAGE_08_TRANSITION",
+            "PAGE_09_SOCIAL_REACH",
+            "PAGE_10_CONTACT"
+          ]
+        },
+        "fields": {
+          "type": "object",
+          "description": "Validated per page_type below — see the matching $defs/fields_PAGE_* schema."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_01_TITLE" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_PAGE_01_TITLE" } } }
+        },
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_02_SERVICE" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_PAGE_02_SERVICE" } } }
+        },
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_03_THEME_SHOWCASE" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_PAGE_03_THEME_SHOWCASE" } } }
+        },
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_04_REFERENCES" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_empty" } } }
+        },
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_05_USER_FLOW" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_PAGE_05_USER_FLOW" } } }
+        },
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_06_LOCAL_MOTIFS" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_PAGE_06_LOCAL_MOTIFS" } } }
+        },
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_07_BESTSELLERS" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_empty" } } }
+        },
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_08_TRANSITION" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_PAGE_08_TRANSITION" } } }
+        },
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_09_SOCIAL_REACH" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_PAGE_09_SOCIAL_REACH" } } }
+        },
+        {
+          "if": { "properties": { "page_type": { "const": "PAGE_10_CONTACT" } } },
+          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_PAGE_10_CONTACT" } } }
+        }
+      ]
+    },
+    "fields_empty": {
+      "type": "object",
+      "description": "This page type is 100% fixed content baked into the master template — no authored fields at all.",
+      "additionalProperties": false,
+      "properties": {}
+    },
+    "fields_PAGE_01_TITLE": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["TXT_TITLE_SUBLINE", "IMG_THEME_WORLD_PHOTO"],
+      "properties": {
+        "TXT_TITLE_SUBLINE": { "type": "string", "maxLength": 95 },
+        "IMG_THEME_WORLD_PHOTO": { "$ref": "#/$defs/image_path" }
+      }
+    },
+    "fields_PAGE_02_SERVICE": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["IMG_THEME_WORLD_PHOTO"],
+      "properties": {
+        "IMG_THEME_WORLD_PHOTO": { "$ref": "#/$defs/image_path" }
+      }
+    },
+    "fields_PAGE_03_THEME_SHOWCASE": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["TXT_THEME_WORLD_NAME_1", "IMG_THEME_WORLD_PHOTO_1"],
+      "properties": {
+        "TXT_THEME_WORLD_NAME_1": { "type": "string", "maxLength": 25 },
+        "IMG_THEME_WORLD_PHOTO_1": { "$ref": "#/$defs/image_path" },
+        "TXT_THEME_WORLD_NAME_2": { "type": "string", "maxLength": 25 },
+        "IMG_THEME_WORLD_PHOTO_2": { "$ref": "#/$defs/image_path" }
+      }
+    },
+    "fields_PAGE_05_USER_FLOW": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "TXT_KIOSK_BACKGROUND_LABEL",
+        "IMG_KIOSK_SCREENSHOT",
+        "IMG_USER_FLOW_CARD_1",
+        "IMG_USER_FLOW_CARD_2"
+      ],
+      "properties": {
+        "TXT_KIOSK_BACKGROUND_LABEL": { "type": "string", "maxLength": 30 },
+        "IMG_KIOSK_SCREENSHOT": { "$ref": "#/$defs/image_path" },
+        "IMG_USER_FLOW_CARD_1": { "$ref": "#/$defs/image_path" },
+        "IMG_USER_FLOW_CARD_2": { "$ref": "#/$defs/image_path" }
+      }
+    },
+    "fields_PAGE_06_LOCAL_MOTIFS": {
+      "type": "object",
+      "description": "Headline/subheadline/stats-callout/column-headers/row-numbers are deliberately absent — they're computed by the generator from this page's position among the deck's PAGE_06_LOCAL_MOTIFS occurrences, not authored input. See docs/04-fields.md 'Fields not included here'.",
+      "additionalProperties": false,
+      "required": [
+        "TXT_THEME_WORLD_NAME",
+        "TXT_MOTIF_1_NAME",
+        "IMG_MOTIF_1_PHOTO",
+        "IMG_MOTIF_1_BACKGROUND",
+        "IMG_MOTIF_1_MASK"
+      ],
+      "properties": {
+        "TXT_THEME_WORLD_NAME": { "type": "string", "maxLength": 55 },
+        "TXT_MOTIF_1_NAME": { "type": "string", "maxLength": 30 },
+        "IMG_MOTIF_1_PHOTO": { "$ref": "#/$defs/image_path" },
+        "IMG_MOTIF_1_BACKGROUND": { "$ref": "#/$defs/image_path" },
+        "IMG_MOTIF_1_MASK": { "$ref": "#/$defs/image_path" },
+        "TXT_MOTIF_2_NAME": { "type": "string", "maxLength": 30 },
+        "IMG_MOTIF_2_PHOTO": { "$ref": "#/$defs/image_path" },
+        "IMG_MOTIF_2_BACKGROUND": { "$ref": "#/$defs/image_path" },
+        "IMG_MOTIF_2_MASK": { "$ref": "#/$defs/image_path" },
+        "TXT_MOTIF_3_NAME": { "type": "string", "maxLength": 30 },
+        "IMG_MOTIF_3_PHOTO": { "$ref": "#/$defs/image_path" },
+        "IMG_MOTIF_3_BACKGROUND": { "$ref": "#/$defs/image_path" },
+        "IMG_MOTIF_3_MASK": { "$ref": "#/$defs/image_path" }
+      }
+    },
+    "fields_PAGE_08_TRANSITION": {
+      "type": "object",
+      "description": "TXT_THEME_WORLD_NAME_1/_2 corrects docs/04-fields.md, which only lists a bare TXT_THEME_WORLD_NAME for this page type — the actually-built templates/master_v01.pptx layout has 2 separate named placeholders, one per card.",
+      "additionalProperties": false,
+      "required": ["TXT_THEME_WORLD_NAME_1", "IMG_OUTPUT_CARD_1", "TXT_THEME_WORLD_NAME_2", "IMG_OUTPUT_CARD_2"],
+      "properties": {
+        "TXT_THEME_WORLD_NAME_1": { "type": "string", "maxLength": 55 },
+        "IMG_OUTPUT_CARD_1": { "$ref": "#/$defs/image_path" },
+        "TXT_THEME_WORLD_NAME_2": { "type": "string", "maxLength": 55 },
+        "IMG_OUTPUT_CARD_2": { "$ref": "#/$defs/image_path" }
+      }
+    },
+    "fields_PAGE_09_SOCIAL_REACH": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["IMG_INSTAGRAM_MOCKUP"],
+      "properties": {
+        "IMG_INSTAGRAM_MOCKUP": { "$ref": "#/$defs/image_path" }
+      }
+    },
+    "fields_PAGE_10_CONTACT": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["IMG_LANDMARK_PHOTO"],
+      "properties": {
+        "IMG_LANDMARK_PHOTO": { "$ref": "#/$defs/image_path" }
+      }
+    }
+  }
+}
