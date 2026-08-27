@@ -16,10 +16,13 @@ docs/measurements/
 # motif names, client list) to test the template — same rule as reference/.
 src/sanity_check_build.py
 src/sanity_check_extract_images.py
+src/_wp8_prepare_test_images.py
 # WP7 example data file: task brief requires real (not invented) presentation
 # content here, which is exactly what the repo's confidentiality rule
 # excludes — kept local only, same treatment as reference/.
 data/example_01.json
+# Real per-market photos referenced by data/example_01.json — same rule.
+images/
 
 # AI tooling — must never appear in this repository
 .claude/

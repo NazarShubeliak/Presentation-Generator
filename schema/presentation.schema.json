@@ -128,8 +128,8 @@
     },
     "fields_PAGE_01_TITLE": {
       "type": "object",
+      "description": "Presence of mandatory fields (TXT_TITLE_SUBLINE, IMG_THEME_WORLD_PHOTO per docs/04-fields.md) is intentionally not enforced by 'required' here — src/build_presentation.py checks it at generation time and writes a visible <<MISSING: ...>> marker instead of failing validation, per the task brief's WP8 step 4. This schema only enforces shape (type/length/pattern) for whichever fields are present.",
       "additionalProperties": false,
-      "required": ["TXT_TITLE_SUBLINE", "IMG_THEME_WORLD_PHOTO"],
       "properties": {
         "TXT_TITLE_SUBLINE": { "type": "string", "maxLength": 95 },
         "IMG_THEME_WORLD_PHOTO": { "$ref": "#/$defs/image_path" }
@@ -137,16 +137,16 @@
     },
     "fields_PAGE_02_SERVICE": {
       "type": "object",
+      "description": "Mandatory-field presence enforced by src/build_presentation.py at generation time (<<MISSING>> marker), not by this schema — see fields_PAGE_01_TITLE's note.",
       "additionalProperties": false,
-      "required": ["IMG_THEME_WORLD_PHOTO"],
       "properties": {
         "IMG_THEME_WORLD_PHOTO": { "$ref": "#/$defs/image_path" }
       }
     },
     "fields_PAGE_03_THEME_SHOWCASE": {
       "type": "object",
+      "description": "_1's mandatory presence and _2's optional presence are both enforced by src/build_presentation.py at generation time, not by this schema — see fields_PAGE_01_TITLE's note. _2 absent is the normal single-theme case (removes the unused placeholder); _1 absent gets a <<MISSING>> marker.",
       "additionalProperties": false,
-      "required": ["TXT_THEME_WORLD_NAME_1", "IMG_THEME_WORLD_PHOTO_1"],
       "properties": {
         "TXT_THEME_WORLD_NAME_1": { "type": "string", "maxLength": 25 },
         "IMG_THEME_WORLD_PHOTO_1": { "$ref": "#/$defs/image_path" },
@@ -156,13 +156,8 @@
     },
     "fields_PAGE_05_USER_FLOW": {
       "type": "object",
+      "description": "Mandatory-field presence enforced by src/build_presentation.py at generation time (<<MISSING>> marker), not by this schema — see fields_PAGE_01_TITLE's note.",
       "additionalProperties": false,
-      "required": [
-        "TXT_KIOSK_BACKGROUND_LABEL",
-        "IMG_KIOSK_SCREENSHOT",
-        "IMG_USER_FLOW_CARD_1",
-        "IMG_USER_FLOW_CARD_2"
-      ],
       "properties": {
         "TXT_KIOSK_BACKGROUND_LABEL": { "type": "string", "maxLength": 30 },
         "IMG_KIOSK_SCREENSHOT": { "$ref": "#/$defs/image_path" },
@@ -172,15 +167,8 @@
     },
     "fields_PAGE_06_LOCAL_MOTIFS": {
       "type": "object",
-      "description": "Headline/subheadline/stats-callout/column-headers/row-numbers are deliberately absent — they're computed by the generator from this page's position among the deck's PAGE_06_LOCAL_MOTIFS occurrences, not authored input. See docs/04-fields.md 'Fields not included here'.",
+      "description": "Headline/subheadline/stats-callout/column-headers/row-numbers are deliberately absent — they're computed by the generator from this page's position among the deck's PAGE_06_LOCAL_MOTIFS occurrences, not authored input. See docs/04-fields.md 'Fields not included here'. Mandatory-field presence (theme name, motif 1's set) and optional-field presence (motifs 2/3) are both enforced by src/build_presentation.py at generation time, not by this schema — see fields_PAGE_01_TITLE's note.",
       "additionalProperties": false,
-      "required": [
-        "TXT_THEME_WORLD_NAME",
-        "TXT_MOTIF_1_NAME",
-        "IMG_MOTIF_1_PHOTO",
-        "IMG_MOTIF_1_BACKGROUND",
-        "IMG_MOTIF_1_MASK"
-      ],
       "properties": {
         "TXT_THEME_WORLD_NAME": { "type": "string", "maxLength": 55 },
         "TXT_MOTIF_1_NAME": { "type": "string", "maxLength": 30 },
@@ -199,9 +187,8 @@
     },
     "fields_PAGE_08_TRANSITION": {
       "type": "object",
-      "description": "TXT_THEME_WORLD_NAME_1/_2 corrects docs/04-fields.md, which only lists a bare TXT_THEME_WORLD_NAME for this page type — the actually-built templates/master_v01.pptx layout has 2 separate named placeholders, one per card.",
+      "description": "TXT_THEME_WORLD_NAME_1/_2 corrects docs/04-fields.md, which only lists a bare TXT_THEME_WORLD_NAME for this page type — the actually-built templates/master_v01.pptx layout has 2 separate named placeholders, one per card. Mandatory-field presence enforced by src/build_presentation.py at generation time (<<MISSING>> marker), not by this schema — see fields_PAGE_01_TITLE's note.",
       "additionalProperties": false,
-      "required": ["TXT_THEME_WORLD_NAME_1", "IMG_OUTPUT_CARD_1", "TXT_THEME_WORLD_NAME_2", "IMG_OUTPUT_CARD_2"],
       "properties": {
         "TXT_THEME_WORLD_NAME_1": { "type": "string", "maxLength": 55 },
         "IMG_OUTPUT_CARD_1": { "$ref": "#/$defs/image_path" },
@@ -211,16 +198,16 @@
     },
     "fields_PAGE_09_SOCIAL_REACH": {
       "type": "object",
+      "description": "Mandatory-field presence enforced by src/build_presentation.py at generation time (<<MISSING>> marker), not by this schema — see fields_PAGE_01_TITLE's note.",
       "additionalProperties": false,
-      "required": ["IMG_INSTAGRAM_MOCKUP"],
       "properties": {
         "IMG_INSTAGRAM_MOCKUP": { "$ref": "#/$defs/image_path" }
       }
     },
     "fields_PAGE_10_CONTACT": {
       "type": "object",
+      "description": "Mandatory-field presence enforced by src/build_presentation.py at generation time (<<MISSING>> marker), not by this schema — see fields_PAGE_01_TITLE's note.",
       "additionalProperties": false,
-      "required": ["IMG_LANDMARK_PHOTO"],
       "properties": {
         "IMG_LANDMARK_PHOTO": { "$ref": "#/$defs/image_path" }
       }
