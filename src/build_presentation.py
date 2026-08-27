@@ -25,6 +25,8 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from PIL import Image
 from pptx import Presentation
+from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = PROJECT_ROOT / "schema" / "presentation.schema.json"
@@ -186,8 +188,77 @@ def crop_to_ratio(image_path: Path, target_ratio: float, tmp_dir: Path) -> Path:
     return out_path
 
 
+SLIDE_BACKGROUND_RGB = RGBColor(0xF2, 0xEA, 0xE0)
+
+
 def remove_shape(shape):
     shape._element.getparent().remove(shape._element)
+
+
+def _overlaps(a_left, a_top, a_width, a_height, b_left, b_top, b_width, b_height):
+    a_right, a_bottom = a_left + a_width, a_top + a_height
+    b_right, b_bottom = b_left + b_width, b_top + b_height
+    return a_left < b_right and b_left < a_right and a_top < b_bottom and b_top < a_bottom
+
+
+def mask_orphaned_fixed_shapes(slide, layout, removed_bbox):
+    """Cover any of the layout's fixed (non-placeholder) shapes that overlap
+    removed_bbox with a plain slide-background rectangle.
+
+    A layout can have a fixed decorative shape (e.g. a tinted caption plate)
+    positioned specifically behind one optional placeholder slot — normally
+    hidden by that slot's own opaque content. Once the slot's placeholder is
+    removed for being unused (see fill_slide), that decoration has nothing
+    left covering it and floats into view via ordinary layout inheritance.
+    Found on PAGE_03_THEME_SHOWCASE's unused 2nd theme slot. Masking with a
+    plain background rectangle is simpler and more robust than trying to
+    hide the layout shape itself (layout shapes are shared across every
+    slide using that layout, so a single slide can't delete one).
+    """
+    left, top, width, height = removed_bbox
+    for shape in layout.shapes:
+        if shape.is_placeholder:
+            continue
+        if not _overlaps(left, top, width, height, shape.left, shape.top, shape.width, shape.height):
+            continue
+        cover = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, shape.left, shape.top, shape.width, shape.height)
+        cover.fill.solid()
+        cover.fill.fore_color.rgb = SLIDE_BACKGROUND_RGB
+        cover.line.fill.background()
+        cover.shadow.inherit = False
+
+
+# Layouts where a fixed (non-placeholder) shape needs to render in front of
+# a full-bleed photo placeholder — see reassert_fixed_layout_shapes(). Only
+# PAGE_01_TITLE: its headline is a plain fixed TextBox with no placeholder
+# equivalent, so it's invisible behind any inserted photo unless re-asserted.
+# PAGE_03_THEME_SHOWCASE looks similar (tinted plate + caption over a photo)
+# but its caption is already a real placeholder, which composites correctly
+# on its own — applying this same fix there is actively wrong: it also
+# copies the *other* slot's plate (a separate fixed shape per slot), which
+# ends up floating with nothing behind it whenever that slot is unused
+# (the common single-theme case), and pushes the used slot's plate in
+# front of its own caption text, dimming it. Found by testing broadly
+# instead of assuming layouts affected the same way need the same fix.
+LAYOUTS_NEEDING_FIXED_SHAPE_REASSERT = {"PAGE_01_TITLE"}
+
+
+def reassert_fixed_layout_shapes(slide, layout):
+    """Copy the layout's own non-placeholder ("fixed content") shapes onto
+    the slide, appended last (frontmost).
+
+    PowerPoint renders layout-inherited fixed shapes behind ALL of a slide's
+    own placeholder content, regardless of their relative order in the
+    layout's XML. That's invisible on most layouts (nothing overlaps them),
+    but on PAGE_01_TITLE specifically, the full-bleed photo placeholder
+    completely covers the fixed headline text and its tinted plate — found
+    the hard way while sanity-checking a real generated deck. Explicit
+    copies here render on top of the inherited (now-hidden) originals,
+    which is harmless — same content, same position, just no longer hidden.
+    """
+    for shape in layout.shapes:
+        if not shape.is_placeholder:
+            slide.shapes._spTree.append(copy.deepcopy(shape._element))
 
 
 def fill_slide(slide, page_type: str, fields: dict, base_dir: Path, tmp_dir: Path, log):
@@ -225,7 +296,9 @@ def fill_slide(slide, page_type: str, fields: dict, base_dir: Path, tmp_dir: Pat
                     placeholder.text_frame.text = f"<<MISSING: {field_name}>>"
             else:
                 log(f"    optional field {field_name} not provided, removing unused placeholder")
+                bbox = (placeholder.left, placeholder.top, placeholder.width, placeholder.height)
                 remove_shape(placeholder)
+                mask_orphaned_fixed_shapes(slide, slide.slide_layout, bbox)
 
 
 def fill_motif_computed_fields(slide, position: int, log):
@@ -286,6 +359,8 @@ def main():
 
         slide = prs.slides.add_slide(layout)
         fill_slide(slide, page_type, fields, base_dir, tmp_dir, log)
+        if page_type in LAYOUTS_NEEDING_FIXED_SHAPE_REASSERT:
+            reassert_fixed_layout_shapes(slide, layout)
 
         if page_type == "PAGE_06_LOCAL_MOTIFS":
             motif_table_count += 1
