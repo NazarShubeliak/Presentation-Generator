@@ -21,6 +21,8 @@ src/_wp8_prepare_test_images.py
 # content here, which is exactly what the repo's confidentiality rule
 # excludes — kept local only, same treatment as reference/.
 data/example_01.json
+# Ad-hoc test data files copied from example_01.json (same real text content).
+data/test_*.json
 # Real per-market photos referenced by data/example_01.json — same rule.
 images/
 
