@@ -65,6 +65,8 @@ seem obvious):
 | `TXT_THEME_WORLD_NAME` | max. 55 characters (revised from 25 while writing WP7's schema — the built template's `PAGE_06_LOCAL_MOTIFS` caption box measures to that limit, see `docs/05-template.md`) | Not authored in `PAGE_01_TITLE`/`PAGE_02_SERVICE` at all — computed by the generator from top-level `theme_worlds[0]`, not a per-page field (`docs/open-questions.md` #12); mandatory in `PAGE_06_LOCAL_MOTIFS` | `PAGE_06_LOCAL_MOTIFS` | "Kaiser-Otto-Pfalz" |
 | `TXT_THEME_WORLD_NAME_1` | max. 25 characters on `PAGE_03` / max. 55 characters on `PAGE_08` (name reused across page types with different caption box sizes, same convention as `IMG_THEME_WORLD_PHOTO`'s per-page-type frame ratio) | Yes on both | `PAGE_03_THEME_SHOWCASE`, `PAGE_08_TRANSITION` | "Luther & Reformation" |
 | `TXT_THEME_WORLD_NAME_2` | max. 25 characters on `PAGE_03` (optional, 2-up slide only) / max. 55 characters on `PAGE_08` (mandatory, 2nd output card) | Optional on `PAGE_03`, mandatory on `PAGE_08` | `PAGE_03_THEME_SHOWCASE`, `PAGE_08_TRANSITION` | "Händelstadt Halle" |
+| `TXT_THEME_TAGLINE_1` | max. 30 characters (provisional — new field, not yet separately measured) | Yes | `PAGE_03_THEME_SHOWCASE` | "Luther & Reformation" |
+| `TXT_THEME_TAGLINE_2` | max. 30 characters (provisional) | Optional — 2-up slide only, matches `TXT_THEME_WORLD_NAME_2` | `PAGE_03_THEME_SHOWCASE` | "Händelstadt Halle" |
 | `TXT_MOTIF_1_NAME` | max. 30 characters | Yes | `PAGE_06_LOCAL_MOTIFS` | "Rudolph" |
 | `TXT_MOTIF_2_NAME` | max. 30 characters | Optional — a table can have 1–3 motif rows | `PAGE_06_LOCAL_MOTIFS` | "Adalbert von Magdeburg" |
 | `TXT_MOTIF_3_NAME` | max. 30 characters | Optional | `PAGE_06_LOCAL_MOTIFS` | "Schneekönigin" |
@@ -79,6 +81,16 @@ this is a real, separate text field, not baked into `IMG_KIOSK_SCREENSHOT`
 a brief listing characters, places, and defined landmarks per market,
 supplied in advance of generation — not authored freehand per field.
 
+`TXT_THEME_TAGLINE_1`/`_2` and `IMG_SHOWCASE_BACKGROUND` note: added while
+building placeholders into the designer's redesigned layout
+(`templates/макет-презентація.pptx`) — that layout added a short tagline
+under each `PAGE_03_THEME_SHOWCASE` photo and a shared full-bleed background
+photo behind both theme slots, neither of which existed in the original
+`master_v01.pptx` build or WP4/WP5's measurement pass. Character limits and
+example values are provisional (not measured against a reference deck, since
+this content doesn't exist in any of the 5 source decks); revisit once real
+content is available.
+
 ## Image fields (`IMG_`)
 
 | Field | Constraint | Mandatory | Used in | Example value |
@@ -86,6 +98,7 @@ supplied in advance of generation — not authored freehand per field.
 | `IMG_THEME_WORLD_PHOTO` | `PAGE_01_TITLE`: full-bleed 16:9 (source was 4:3, see `docs/03-elements.md`). `PAGE_02_SERVICE`: 4:3, frame ratio 1.33 | Yes | `PAGE_01_TITLE`, `PAGE_02_SERVICE` | `images/magdeburg_kaiser_otto_pfalz.jpg` |
 | `IMG_THEME_WORLD_PHOTO_1` | 4:3, frame ratio 1.33 | Yes | `PAGE_03_THEME_SHOWCASE` | `images/halle_luther_reformation.jpg` |
 | `IMG_THEME_WORLD_PHOTO_2` | 4:3, frame ratio 1.33 | Optional — present only on a 2-up slide | `PAGE_03_THEME_SHOWCASE` | `images/halle_haendelstadt.jpg` |
+| `IMG_SHOWCASE_BACKGROUND` | Full-bleed 16:9 (provisional — new field, not yet separately measured) | Yes | `PAGE_03_THEME_SHOWCASE` | `images/halle_showcase_background.jpg` |
 | `IMG_MOTIF_1_PHOTO` / `IMG_MOTIF_1_BACKGROUND` / `IMG_MOTIF_1_MASK` | Aspect ratio **not yet measured** — see open question | Yes | `PAGE_06_LOCAL_MOTIFS` | `images/magdeburg_rudolph_photo.jpg` |
 | `IMG_MOTIF_2_*` / `IMG_MOTIF_3_*` (same 3 sub-fields each) | Same as above | Optional, matching `TXT_MOTIF_2_NAME`/`TXT_MOTIF_3_NAME` | `PAGE_06_LOCAL_MOTIFS` | — |
 | `IMG_KIOSK_SCREENSHOT` | Frame ratio 1.45 | Yes | `PAGE_05_USER_FLOW` | `images/magdeburg_kiosk.png` |

@@ -145,13 +145,16 @@
     },
     "fields_PAGE_03_THEME_SHOWCASE": {
       "type": "object",
-      "description": "_1's mandatory presence and _2's optional presence are both enforced by src/build_presentation.py at generation time, not by this schema — see fields_PAGE_01_TITLE's note. _2 absent is the normal single-theme case (removes the unused placeholder); _1 absent gets a <<MISSING>> marker.",
+      "description": "_1's mandatory presence and _2's optional presence are both enforced by src/build_presentation.py at generation time, not by this schema — see fields_PAGE_01_TITLE's note. _2 absent is the normal single-theme case (removes the unused placeholder); _1 absent gets a <<MISSING>> marker. TXT_THEME_TAGLINE_1/_2 and IMG_SHOWCASE_BACKGROUND added when the designer's redesigned layout (templates/макет-презентація.pptx) turned out to need a short per-theme tagline and a shared full-bleed background photo, neither of which existed in the original WP6 template.",
       "additionalProperties": false,
       "properties": {
         "TXT_THEME_WORLD_NAME_1": { "type": "string", "maxLength": 25 },
         "IMG_THEME_WORLD_PHOTO_1": { "$ref": "#/$defs/image_path" },
+        "TXT_THEME_TAGLINE_1": { "type": "string", "maxLength": 30 },
+        "IMG_SHOWCASE_BACKGROUND": { "$ref": "#/$defs/image_path" },
         "TXT_THEME_WORLD_NAME_2": { "type": "string", "maxLength": 25 },
-        "IMG_THEME_WORLD_PHOTO_2": { "$ref": "#/$defs/image_path" }
+        "IMG_THEME_WORLD_PHOTO_2": { "$ref": "#/$defs/image_path" },
+        "TXT_THEME_TAGLINE_2": { "type": "string", "maxLength": 30 }
       }
     },
     "fields_PAGE_05_USER_FLOW": {

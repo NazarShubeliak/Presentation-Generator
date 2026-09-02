@@ -85,8 +85,8 @@ PAGE_FIELD_SPECS = {
         "optional": [],
     },
     "PAGE_03_THEME_SHOWCASE": {
-        "required": ["TXT_THEME_WORLD_NAME_1", "IMG_THEME_WORLD_PHOTO_1"],
-        "optional": ["TXT_THEME_WORLD_NAME_2", "IMG_THEME_WORLD_PHOTO_2"],
+        "required": ["TXT_THEME_WORLD_NAME_1", "IMG_THEME_WORLD_PHOTO_1", "TXT_THEME_TAGLINE_1", "IMG_SHOWCASE_BACKGROUND"],
+        "optional": ["TXT_THEME_WORLD_NAME_2", "IMG_THEME_WORLD_PHOTO_2", "TXT_THEME_TAGLINE_2"],
     },
     "PAGE_04_REFERENCES": {"required": [], "optional": []},
     "PAGE_05_USER_FLOW": {
@@ -319,6 +319,73 @@ def fill_motif_computed_fields(slide, position: int, log):
             remove_shape(placeholder)
 
 
+# PAGE_04_REFERENCES's client-list footer is computed, not authored: the
+# fixed 8-name boilerplate list minus the current deck's own market
+# (docs/03-elements.md's "Client-list footer" row, docs/open-questions.md
+# #5). Split into the source decks' original 2-line grouping so the normal
+# (nothing excluded) case reproduces that layout; a self-match just drops
+# out of whichever line it's on.
+REFERENCES_FOOTER_CLIENTS_LINE_1 = [
+    "Striezelmarkt Dresden",
+    "Salzburger Christkindlmarkt",
+    "Berliner Weihnachtszeit",
+    "Weihnachtsmarkt Wiesbaden",
+]
+REFERENCES_FOOTER_CLIENTS_LINE_2 = [
+    "Kölner Dom",
+    "Tower Bridge London",
+    "Checkpoint Charlie Berlin",
+    "Wiener Prater",
+]
+
+
+def compute_references_footer(city: str) -> str:
+    def exclude_self(names):
+        return [n for n in names if city.lower() not in n.lower()]
+
+    line1 = "     ".join(exclude_self(REFERENCES_FOOTER_CLIENTS_LINE_1))
+    line2 = "     ".join(exclude_self(REFERENCES_FOOTER_CLIENTS_LINE_2) + ["und viele mehr."])
+    return f"{line1}\n{line2}"
+
+
+def fill_references_footer(slide, city: str, log):
+    name_by_idx = {ph.placeholder_format.idx: ph.name for ph in slide.slide_layout.placeholders}
+    placeholders = {name_by_idx.get(ph.placeholder_format.idx): ph for ph in slide.placeholders}
+    placeholder = placeholders.get("TXT_REFERENCES_FOOTER")
+    if placeholder is None:
+        log("    ! template has no placeholder named TXT_REFERENCES_FOOTER (schema/template drift)")
+        return
+    text = compute_references_footer(city)
+    placeholder.text_frame.text = text
+    log(f"    computed TXT_REFERENCES_FOOTER = {text!r}")
+
+
+# PAGE_01_TITLE/PAGE_02_SERVICE's theme-world-name caption is likewise
+# computed, not authored per-page: theme_worlds[0], shown only once the deck
+# has more than 2 theme worlds (docs/open-questions.md #12, top-level
+# theme_worlds' schema description). Below that threshold the placeholder is
+# removed, same optional-field-removal treatment as fill_slide's.
+LAYOUTS_WITH_COMPUTED_THEME_CAPTION = {"PAGE_01_TITLE", "PAGE_02_SERVICE"}
+
+
+def fill_theme_world_name_caption(slide, layout, theme_worlds: list, log):
+    name_by_idx = {ph.placeholder_format.idx: ph.name for ph in slide.slide_layout.placeholders}
+    placeholders = {name_by_idx.get(ph.placeholder_format.idx): ph for ph in slide.placeholders}
+    placeholder = placeholders.get("TXT_THEME_WORLD_NAME")
+    if placeholder is None:
+        return
+
+    if len(theme_worlds) > 2:
+        text = theme_worlds[0]
+        placeholder.text_frame.text = text
+        log(f"    computed TXT_THEME_WORLD_NAME = {text!r}")
+    else:
+        log("    computed TXT_THEME_WORLD_NAME -> deck has <=2 theme worlds, removing unused placeholder")
+        bbox = (placeholder.left, placeholder.top, placeholder.width, placeholder.height)
+        remove_shape(placeholder)
+        mask_orphaned_fixed_shapes(slide, layout, bbox)
+
+
 def next_output_path(output_dir: Path, project_id: str) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     n = 1
@@ -365,6 +432,10 @@ def main():
         if page_type == "PAGE_06_LOCAL_MOTIFS":
             motif_table_count += 1
             fill_motif_computed_fields(slide, motif_table_count, log)
+        elif page_type == "PAGE_04_REFERENCES":
+            fill_references_footer(slide, data["city"], log)
+        elif page_type in LAYOUTS_WITH_COMPUTED_THEME_CAPTION:
+            fill_theme_world_name_caption(slide, layout, data["theme_worlds"], log)
 
     out_path = next_output_path(args.output, data["project_id"])
     prs.save(str(out_path))
