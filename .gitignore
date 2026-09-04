@@ -25,6 +25,12 @@ data/example_01.json
 data/test_*.json
 # Real per-market photos referenced by data/example_01.json — same rule.
 images/
+# Real client/brand source assets (AR photobooth renders, market photos) —
+# same confidentiality rule as reference/.
+real_img/
+# Throwaway blank-layout preview decks from src/_preview_layouts.py — not a
+# deliverable.
+templates/_preview_*.pptx
 
 # AI tooling — must never appear in this repository
 .claude/

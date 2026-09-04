@@ -26,7 +26,9 @@ from jsonschema import Draft202012Validator
 from PIL import Image
 from pptx import Presentation
 from pptx.dml.color import RGBColor
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_SHAPE, PP_PLACEHOLDER
+from pptx.opc.constants import RELATIONSHIP_TYPE as RT
+from pptx.oxml.ns import qn
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = PROJECT_ROOT / "schema" / "presentation.schema.json"
@@ -85,8 +87,11 @@ PAGE_FIELD_SPECS = {
         "optional": [],
     },
     "PAGE_03_THEME_SHOWCASE": {
-        "required": ["TXT_THEME_WORLD_NAME_1", "IMG_THEME_WORLD_PHOTO_1", "TXT_THEME_TAGLINE_1", "IMG_SHOWCASE_BACKGROUND"],
-        "optional": ["TXT_THEME_WORLD_NAME_2", "IMG_THEME_WORLD_PHOTO_2", "TXT_THEME_TAGLINE_2"],
+        "required": ["TXT_THEME_WORLD_NAME_1", "IMG_SHOWCASE_BACKGROUND"],
+        "optional": [
+            "IMG_THEME_WORLD_PHOTO_1", "TXT_THEME_TAGLINE_1",
+            "TXT_THEME_WORLD_NAME_2", "IMG_THEME_WORLD_PHOTO_2", "TXT_THEME_TAGLINE_2",
+        ],
     },
     "PAGE_04_REFERENCES": {"required": [], "optional": []},
     "PAGE_05_USER_FLOW": {
@@ -201,9 +206,28 @@ def _overlaps(a_left, a_top, a_width, a_height, b_left, b_top, b_width, b_height
     return a_left < b_right and b_left < a_right and a_top < b_bottom and b_top < a_bottom
 
 
-def mask_orphaned_fixed_shapes(slide, layout, removed_bbox):
+def crop_patch_from_full_bleed(source_path, frame_width, frame_height, patch_left, patch_top,
+                                patch_width, patch_height, tmp_dir):
+    """Crop the sub-region of a full-bleed image (already sized to exactly
+    fill an EMU frame of frame_width x frame_height) that corresponds to a
+    patch_left/top/width/height EMU box within that same frame, so the patch
+    can be drawn back over the frame with no visible seam."""
+    im = Image.open(source_path)
+    img_w, img_h = im.size
+    x0 = max(0, round(patch_left / frame_width * img_w))
+    y0 = max(0, round(patch_top / frame_height * img_h))
+    x1 = min(img_w, round((patch_left + patch_width) / frame_width * img_w))
+    y1 = min(img_h, round((patch_top + patch_height) / frame_height * img_h))
+    patch = im.crop((x0, y0, x1, y1))
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    out_path = tmp_dir / f"{Path(source_path).stem}_patch_{patch_left}_{patch_top}.png"
+    patch.save(out_path)
+    return out_path
+
+
+def mask_orphaned_fixed_shapes(slide, layout, removed_bbox, background_patch=None, tmp_dir=None):
     """Cover any of the layout's fixed (non-placeholder) shapes that overlap
-    removed_bbox with a plain slide-background rectangle.
+    removed_bbox, hiding them behind whatever the slide's real background is.
 
     A layout can have a fixed decorative shape (e.g. a tinted caption plate)
     positioned specifically behind one optional placeholder slot — normally
@@ -211,60 +235,167 @@ def mask_orphaned_fixed_shapes(slide, layout, removed_bbox):
     removed for being unused (see fill_slide), that decoration has nothing
     left covering it and floats into view via ordinary layout inheritance.
     Found on PAGE_03_THEME_SHOWCASE's unused 2nd theme slot. Masking with a
-    plain background rectangle is simpler and more robust than trying to
-    hide the layout shape itself (layout shapes are shared across every
-    slide using that layout, so a single slide can't delete one).
+    plain rectangle is simpler and more robust than trying to hide the
+    layout shape itself (layout shapes are shared across every slide using
+    that layout, so a single slide can't delete one).
+
+    A flat SLIDE_BACKGROUND_RGB rectangle only blends in on layouts whose
+    real background is that plain cream fill. On a layout whose background
+    is itself a full-bleed photo (PAGE_03_THEME_SHOWCASE, once its
+    IMG_SHOWCASE_BACKGROUND field is filled), a flat-colour cover shows up
+    as an obviously mismatched box instead of blending in — pass
+    background_patch (the (image_path, left, top, width, height) of that
+    full-bleed photo, as already inserted) and this crops the matching
+    region of the same photo to patch over the orphan instead.
+
+    Returns the set of layout shape_ids that were covered, so a caller that
+    later runs reassert_fixed_layout_shapes() on the same slide (layouts
+    that need both, e.g. PAGE_03_THEME_SHOWCASE) can tell it to skip
+    re-copying these particular shapes fresh from the layout — otherwise
+    that blind re-copy would paste the orphan right back on top of the
+    patch this function just added.
     """
     left, top, width, height = removed_bbox
+    masked_shape_ids = set()
     for shape in layout.shapes:
         if shape.is_placeholder:
             continue
         if not _overlaps(left, top, width, height, shape.left, shape.top, shape.width, shape.height):
             continue
-        cover = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, shape.left, shape.top, shape.width, shape.height)
-        cover.fill.solid()
-        cover.fill.fore_color.rgb = SLIDE_BACKGROUND_RGB
-        cover.line.fill.background()
-        cover.shadow.inherit = False
+        masked_shape_ids.add(shape.shape_id)
+        if background_patch is not None:
+            source_path, frame_left, frame_top, frame_width, frame_height = background_patch
+            patch_path = crop_patch_from_full_bleed(
+                source_path, frame_width, frame_height,
+                shape.left - frame_left, shape.top - frame_top, shape.width, shape.height, tmp_dir,
+            )
+            slide.shapes.add_picture(str(patch_path), shape.left, shape.top, shape.width, shape.height)
+        else:
+            cover = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, shape.left, shape.top, shape.width, shape.height)
+            cover.fill.solid()
+            cover.fill.fore_color.rgb = SLIDE_BACKGROUND_RGB
+            cover.line.fill.background()
+            cover.shadow.inherit = False
+    return masked_shape_ids
 
 
 # Layouts where a fixed (non-placeholder) shape needs to render in front of
-# a full-bleed photo placeholder — see reassert_fixed_layout_shapes(). Only
+# a full-bleed photo placeholder — see reassert_fixed_layout_shapes().
 # PAGE_01_TITLE: its headline is a plain fixed TextBox with no placeholder
 # equivalent, so it's invisible behind any inserted photo unless re-asserted.
-# PAGE_03_THEME_SHOWCASE looks similar (tinted plate + caption over a photo)
-# but its caption is already a real placeholder, which composites correctly
-# on its own — applying this same fix there is actively wrong: it also
-# copies the *other* slot's plate (a separate fixed shape per slot), which
-# ends up floating with nothing behind it whenever that slot is unused
-# (the common single-theme case), and pushes the used slot's plate in
-# front of its own caption text, dimming it. Found by testing broadly
-# instead of assuming layouts affected the same way need the same fix.
-LAYOUTS_NEEDING_FIXED_SHAPE_REASSERT = {"PAGE_01_TITLE"}
+# PAGE_03_THEME_SHOWCASE: added once its redesigned layout gave
+# IMG_SHOWCASE_BACKGROUND a full-bleed frame too (it didn't have one before),
+# which hid its name/tagline plates the exact same way. Unlike PAGE_01, this
+# layout also has an *unused-slot* masking step (mask_orphaned_fixed_shapes,
+# for the common single-theme case) that runs first and covers slot 2's
+# now-orphaned plate — reassert must be told to skip re-copying exactly
+# those already-covered shapes (via masked_shape_ids), or its blind copy
+# would paste the orphan right back on top of that cover.
+LAYOUTS_NEEDING_FIXED_SHAPE_REASSERT = {"PAGE_01_TITLE", "PAGE_02_SERVICE", "PAGE_03_THEME_SHOWCASE"}
+
+# EMU tolerance for treating a fixed shape's bbox as "the same slot" as a
+# placeholder's, in reassert_fixed_layout_shapes() below.
+PLATE_MATCH_TOLERANCE = 20000
 
 
-def reassert_fixed_layout_shapes(slide, layout):
+def reassert_fixed_layout_shapes(slide, layout, skip_shape_ids=frozenset()):
     """Copy the layout's own non-placeholder ("fixed content") shapes onto
-    the slide, appended last (frontmost).
+    the slide.
 
     PowerPoint renders layout-inherited fixed shapes behind ALL of a slide's
     own placeholder content, regardless of their relative order in the
     layout's XML. That's invisible on most layouts (nothing overlaps them),
-    but on PAGE_01_TITLE specifically, the full-bleed photo placeholder
-    completely covers the fixed headline text and its tinted plate — found
-    the hard way while sanity-checking a real generated deck. Explicit
-    copies here render on top of the inherited (now-hidden) originals,
-    which is harmless — same content, same position, just no longer hidden.
+    but on a layout with a full-bleed (or near-full-bleed) photo placeholder,
+    that photo completely covers any fixed shape behind it — the headline
+    text on PAGE_01_TITLE, the theme-name caption plate on PAGE_03, the
+    caption plate on PAGE_02_SERVICE's near-full-bleed circular photo — found
+    the hard way while sanity-checking real generated decks. Explicit copies
+    here render in front of the inherited (now-hidden) originals, which is
+    harmless — same content, same position, just no longer hidden.
+
+    Not every fixed shape wants the same *stacking* position once re-copied,
+    though. A shape with no placeholder equivalent (e.g. PAGE_01's headline
+    TextBox) has nothing else to layer against, so it simply goes frontmost.
+    But a fixed shape that's really a tinted *backdrop plate* for one of the
+    slide's own text placeholders — same position and size, added later so
+    the caption reads better over a busy photo — must render BEHIND that
+    placeholder's text, not in front of it (else the plate's fill visually
+    covers the very text it's supposed to set off). So: for each fixed shape,
+    look for a same-bbox text placeholder already on the slide; if found,
+    insert the copy immediately before that placeholder's own element
+    (behind it, but still in front of the photo, which sits earlier in the
+    tree); otherwise append at the end (frontmost) as before.
+
+    skip_shape_ids excludes specific layout shapes (by shape_id) from being
+    re-copied — needed for a layout like PAGE_03_THEME_SHOWCASE where an
+    earlier masking step has already covered an orphaned shape on this
+    slide; blindly re-copying it here would undo that cover.
+
+    A plain XML deepcopy is enough for text/shape content, but a fixed
+    *picture* shape's `<a:blip r:embed="rIdN">` points at a relationship
+    that only exists in the layout part's own .rels — copying the element
+    as-is into the slide leaves that rId dangling there (broken image, or
+    by chance colliding with an unrelated rId already used on the slide).
+    So for every blip found in the copied element, re-resolve the source
+    image part from the layout part and add a fresh relationship on the
+    slide part, pointing the copy's r:embed at the new, valid rId.
     """
+    # Snapshot text-placeholder bboxes up front: reading .left/.top/.width/
+    # .height on a PICTURE placeholder after insert_picture() has already
+    # run on it (fill_slide runs before this) raises inside python-pptx, and
+    # we only ever need to backdrop-match text placeholders anyway.
+    text_placeholders = [
+        ph for ph in slide.placeholders
+        if ph.placeholder_format.type != PP_PLACEHOLDER.PICTURE
+    ]
+    text_placeholder_bboxes = [
+        (ph, ph.left, ph.top, ph.width, ph.height) for ph in text_placeholders
+    ]
+
     for shape in layout.shapes:
-        if not shape.is_placeholder:
-            slide.shapes._spTree.append(copy.deepcopy(shape._element))
+        if shape.is_placeholder or shape.shape_id in skip_shape_ids:
+            continue
+        element = copy.deepcopy(shape._element)
+        for blip in element.iter(qn("a:blip")):
+            old_rid = blip.get(qn("r:embed"))
+            if not old_rid:
+                continue
+            image_part = layout.part.related_part(old_rid)
+            new_rid = slide.part.relate_to(image_part, RT.IMAGE)
+            blip.set(qn("r:embed"), new_rid)
+
+        target = None
+        for ph, ph_left, ph_top, ph_width, ph_height in text_placeholder_bboxes:
+            if (
+                abs(ph_left - shape.left) <= PLATE_MATCH_TOLERANCE
+                and abs(ph_top - shape.top) <= PLATE_MATCH_TOLERANCE
+                and abs(ph_width - shape.width) <= PLATE_MATCH_TOLERANCE
+                and abs(ph_height - shape.height) <= PLATE_MATCH_TOLERANCE
+            ):
+                target = ph
+                break
+
+        if target is not None:
+            target._element.addprevious(element)
+        else:
+            slide.shapes._spTree.append(element)
 
 
-def fill_slide(slide, page_type: str, fields: dict, base_dir: Path, tmp_dir: Path, log):
+def fill_slide(slide, page_type: str, fields: dict, base_dir: Path, tmp_dir: Path, log,
+               slide_width: int, slide_height: int):
     name_by_idx = {ph.placeholder_format.idx: ph.name for ph in slide.slide_layout.placeholders}
     placeholders = {name_by_idx.get(ph.placeholder_format.idx): ph for ph in slide.placeholders}
     spec = PAGE_FIELD_SPECS.get(page_type, {"required": [], "optional": []})
+
+    # Tracks the (image_path, left, top, width, height) of an image field
+    # that turned out to be full-bleed (covers the whole slide), so any
+    # orphaned decorative shape masked below can be patched with the
+    # matching crop of that same photo instead of a flat colour rectangle
+    # — see mask_orphaned_fixed_shapes(). None if no full-bleed photo was
+    # filled on this slide (e.g. it's still <<MISSING>> or wasn't provided).
+    full_bleed_patch = None
+    bleed_tolerance = 10000  # EMU (~0.01in) of slack for rounding
+    masked_shape_ids = set()
 
     for field_name in spec["required"] + spec["optional"]:
         is_required = field_name in spec["required"]
@@ -282,10 +413,20 @@ def fill_slide(slide, page_type: str, fields: dict, base_dir: Path, tmp_dir: Pat
                 if not image_path.exists():
                     log(f"    WARNING: {field_name} -> image file not found: {image_path}")
                     continue
-                ratio = placeholder.width / placeholder.height
+                ph_left, ph_top, ph_width, ph_height = (
+                    placeholder.left, placeholder.top, placeholder.width, placeholder.height,
+                )
+                ratio = ph_width / ph_height
                 final_path = crop_to_ratio(image_path, ratio, tmp_dir)
                 placeholder.insert_picture(str(final_path))
                 log(f"    filled {field_name} <- {value}")
+                if (
+                    abs(ph_left) <= bleed_tolerance
+                    and abs(ph_top) <= bleed_tolerance
+                    and abs(ph_width - slide_width) <= bleed_tolerance
+                    and abs(ph_height - slide_height) <= bleed_tolerance
+                ):
+                    full_bleed_patch = (final_path, ph_left, ph_top, ph_width, ph_height)
             else:
                 placeholder.text_frame.text = value
                 log(f"    filled {field_name} = {value!r}")
@@ -298,7 +439,11 @@ def fill_slide(slide, page_type: str, fields: dict, base_dir: Path, tmp_dir: Pat
                 log(f"    optional field {field_name} not provided, removing unused placeholder")
                 bbox = (placeholder.left, placeholder.top, placeholder.width, placeholder.height)
                 remove_shape(placeholder)
-                mask_orphaned_fixed_shapes(slide, slide.slide_layout, bbox)
+                masked_shape_ids |= mask_orphaned_fixed_shapes(
+                    slide, slide.slide_layout, bbox, full_bleed_patch, tmp_dir,
+                )
+
+    return full_bleed_patch, masked_shape_ids
 
 
 def fill_motif_computed_fields(slide, position: int, log):
@@ -316,7 +461,9 @@ def fill_motif_computed_fields(slide, position: int, log):
             log(f"    computed {field_name} (world position {position}) = {text!r}")
         else:
             log(f"    computed {field_name} (world position {position}) -> empty, removing placeholder")
+            bbox = (placeholder.left, placeholder.top, placeholder.width, placeholder.height)
             remove_shape(placeholder)
+            mask_orphaned_fixed_shapes(slide, slide.slide_layout, bbox)
 
 
 # PAGE_04_REFERENCES's client-list footer is computed, not authored: the
@@ -368,7 +515,7 @@ def fill_references_footer(slide, city: str, log):
 LAYOUTS_WITH_COMPUTED_THEME_CAPTION = {"PAGE_01_TITLE", "PAGE_02_SERVICE"}
 
 
-def fill_theme_world_name_caption(slide, layout, theme_worlds: list, log):
+def fill_theme_world_name_caption(slide, layout, theme_worlds: list, log, background_patch=None, tmp_dir=None):
     name_by_idx = {ph.placeholder_format.idx: ph.name for ph in slide.slide_layout.placeholders}
     placeholders = {name_by_idx.get(ph.placeholder_format.idx): ph for ph in slide.placeholders}
     placeholder = placeholders.get("TXT_THEME_WORLD_NAME")
@@ -383,7 +530,7 @@ def fill_theme_world_name_caption(slide, layout, theme_worlds: list, log):
         log("    computed TXT_THEME_WORLD_NAME -> deck has <=2 theme worlds, removing unused placeholder")
         bbox = (placeholder.left, placeholder.top, placeholder.width, placeholder.height)
         remove_shape(placeholder)
-        mask_orphaned_fixed_shapes(slide, layout, bbox)
+        mask_orphaned_fixed_shapes(slide, layout, bbox, background_patch, tmp_dir)
 
 
 def next_output_path(output_dir: Path, project_id: str) -> Path:
@@ -425,9 +572,10 @@ def main():
             continue
 
         slide = prs.slides.add_slide(layout)
-        fill_slide(slide, page_type, fields, base_dir, tmp_dir, log)
+        full_bleed_patch, masked_shape_ids = fill_slide(slide, page_type, fields, base_dir, tmp_dir, log,
+                                                          prs.slide_width, prs.slide_height)
         if page_type in LAYOUTS_NEEDING_FIXED_SHAPE_REASSERT:
-            reassert_fixed_layout_shapes(slide, layout)
+            reassert_fixed_layout_shapes(slide, layout, masked_shape_ids)
 
         if page_type == "PAGE_06_LOCAL_MOTIFS":
             motif_table_count += 1
@@ -435,7 +583,7 @@ def main():
         elif page_type == "PAGE_04_REFERENCES":
             fill_references_footer(slide, data["city"], log)
         elif page_type in LAYOUTS_WITH_COMPUTED_THEME_CAPTION:
-            fill_theme_world_name_caption(slide, layout, data["theme_worlds"], log)
+            fill_theme_world_name_caption(slide, layout, data["theme_worlds"], log, full_bleed_patch, tmp_dir)
 
     out_path = next_output_path(args.output, data["project_id"])
     prs.save(str(out_path))
