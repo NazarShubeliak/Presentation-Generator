@@ -364,13 +364,21 @@ def reassert_fixed_layout_shapes(slide, layout, skip_shape_ids=frozenset()):
             new_rid = slide.part.relate_to(image_part, RT.IMAGE)
             blip.set(qn("r:embed"), new_rid)
 
+        # A backdrop plate doesn't always match a placeholder's bbox exactly
+        # (PAGE_02/PAGE_03's captions do) — PAGE_01's single plate spans both
+        # the fixed headline textbox and the TXT_TITLE_SUBLINE placeholder in
+        # one shape, so it's larger than any one placeholder it backs. Treat
+        # a shape as backing a placeholder if it *contains* the placeholder's
+        # bbox (exact-match is just the case where they're equal), so it
+        # still gets inserted behind that placeholder instead of falling
+        # through to "append frontmost" and covering the placeholder's text.
         target = None
         for ph, ph_left, ph_top, ph_width, ph_height in text_placeholder_bboxes:
             if (
-                abs(ph_left - shape.left) <= PLATE_MATCH_TOLERANCE
-                and abs(ph_top - shape.top) <= PLATE_MATCH_TOLERANCE
-                and abs(ph_width - shape.width) <= PLATE_MATCH_TOLERANCE
-                and abs(ph_height - shape.height) <= PLATE_MATCH_TOLERANCE
+                shape.left - PLATE_MATCH_TOLERANCE <= ph_left
+                and shape.top - PLATE_MATCH_TOLERANCE <= ph_top
+                and (shape.left + shape.width) + PLATE_MATCH_TOLERANCE >= ph_left + ph_width
+                and (shape.top + shape.height) + PLATE_MATCH_TOLERANCE >= ph_top + ph_height
             ):
                 target = ph
                 break
