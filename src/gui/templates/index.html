@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Presentation Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="page">
+    <h1>Presentation Generator</h1>
+    <p class="muted">Build a market's input JSON through a form instead of hand-typing it.</p>
+
+    <a class="button primary" href="{{ url_for('edit') }}">+ New market</a>
+
+    <h2>Existing markets</h2>
+    {% if files %}
+      <ul class="file-list">
+        {% for name in files %}
+          <li>
+            <a href="{{ url_for('edit', name=name) }}">{{ name }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No saved markets yet — click "New market" to start one.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

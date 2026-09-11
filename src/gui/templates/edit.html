@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Presentation Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="page">
+    <a href="{{ url_for('index') }}" class="back-link">&larr; All markets</a>
+    <h1>Edit market</h1>
+
+    <div id="top-fields"></div>
+
+    <h2>Slides</h2>
+    <div id="pages"></div>
+    <div class="add-page-row">
+      <select id="add-page-type"></select>
+      <button type="button" class="button" id="add-page-btn">+ Add slide</button>
+    </div>
+
+    <div class="actions">
+      <label>Template:
+        <select id="template-select"></select>
+      </label>
+      <button type="button" class="button" id="save-btn">Save JSON</button>
+      <button type="button" class="button primary" id="generate-btn">Generate presentation</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <details class="json-preview">
+      <summary>Raw JSON</summary>
+      <pre id="json-preview"></pre>
+    </details>
+  </div>
+
+  <script>
+    const FIELD_CATALOGUE = {{ catalogue | tojson }};
+    const PAGE_TYPES = {{ page_types | tojson }};
+    const INITIAL_DATA = {{ initial_data | tojson }};
+    const AVAILABLE_TEMPLATES = {{ templates | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

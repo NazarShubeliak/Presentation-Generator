@@ -47,7 +47,7 @@ for the full list and reasoning per entry.
    ```
    python -m venv .venv
    .venv\Scripts\activate
-   pip install python-pptx jsonschema Pillow
+   pip install -r requirements.txt
    ```
 
 6. Place the five reference presentations (provided separately) into `reference/`.
@@ -81,3 +81,24 @@ that has no matching placeholder in the template. Output files are versioned
 See `docs/06-comparison.md` for the current validation writeup and a list of
 known open issues (not tracked in Git — same confidentiality rule as
 `reference/`, since it discusses real customer content).
+
+## GUI (build the input JSON without hand-typing it)
+
+A local web form for building/editing a market's input JSON and generating
+straight from it — no more hand-typing the JSON file.
+
+```
+./run_gui.sh
+```
+
+Open the printed URL (`http://127.0.0.1:5000`). It's a single-operator local
+tool: no login, no database, and it only binds to `127.0.0.1` (not reachable
+from other machines). The form is generated from
+`schema/presentation.schema.json` and `build_presentation.py`'s
+`PAGE_FIELD_SPECS` at runtime, so it can never drift out of sync with what
+the generator actually does — see `src/gui/field_catalogue.py`. Image fields
+support both uploading a file (saved under `images/<project_id>/`) and
+typing/reusing an existing `images/...` path directly. "Save" writes
+`data/<project_id>.json`; "Generate" does the same and then runs the normal
+`build_presentation.py` pipeline, offering the resulting `.pptx` for
+download.
