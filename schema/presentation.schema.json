@@ -66,7 +66,6 @@
             "PAGE_04_REFERENCES",
             "PAGE_05_USER_FLOW",
             "PAGE_06_LOCAL_MOTIFS",
-            "PAGE_07_BESTSELLERS",
             "PAGE_08_TRANSITION",
             "PAGE_09_SOCIAL_REACH",
             "PAGE_10_CONTACT"
@@ -101,10 +100,6 @@
         {
           "if": { "properties": { "page_type": { "const": "PAGE_06_LOCAL_MOTIFS" } } },
           "then": { "properties": { "fields": { "$ref": "#/$defs/fields_PAGE_06_LOCAL_MOTIFS" } } }
-        },
-        {
-          "if": { "properties": { "page_type": { "const": "PAGE_07_BESTSELLERS" } } },
-          "then": { "properties": { "fields": { "$ref": "#/$defs/fields_empty" } } }
         },
         {
           "if": { "properties": { "page_type": { "const": "PAGE_08_TRANSITION" } } },

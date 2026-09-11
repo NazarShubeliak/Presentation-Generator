@@ -11,7 +11,7 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 INPUT="${1:-data/example_01.json}"
-TEMPLATE="${2:-templates/master_v02.pptx}"
+TEMPLATE="${2:-templates/master_v03.pptx}"
 OUTPUT="${3:-output/}"
 
 source .venv/Scripts/activate

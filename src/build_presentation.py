@@ -116,7 +116,6 @@ PAGE_FIELD_SPECS = {
             "TXT_MOTIF_3_NAME", "IMG_MOTIF_3_PHOTO", "IMG_MOTIF_3_BACKGROUND", "IMG_MOTIF_3_MASK",
         ],
     },
-    "PAGE_07_BESTSELLERS": {"required": [], "optional": []},
     "PAGE_08_TRANSITION": {
         "required": ["TXT_THEME_WORLD_NAME_1", "IMG_OUTPUT_CARD_1", "TXT_THEME_WORLD_NAME_2", "IMG_OUTPUT_CARD_2"],
         "optional": [],
