@@ -9,23 +9,30 @@ JSON file into a finished `.pptx` file.
 Location research, AI-generated content and any user interface are out of scope for
 this step — see `docs/` for the full task assignment and analysis documents.
 
+**Status: the generator is implemented and working** (`src/build_presentation.py`,
+10 page types, `templates/master_v02.pptx`). Known open issues and the WP9/10
+validation writeup are tracked in `docs/06-comparison.md` (local only, not in
+Git — see below).
+
 ## Project structure
 
 ```
 presentation-generator/
     src/                 # Python code
-    templates/           # the PowerPoint master template
+    templates/           # the PowerPoint master template(s)
     schema/              # JSON schema
-    data/                # example JSON files
+    data/                # example JSON files (git-ignored, real customer content)
+    images/              # real per-market photos referenced by data files (git-ignored)
     docs/                # all analysis documents
     output/              # generated files (git-ignored)
     reference/           # the 5 source presentations (git-ignored, confidential)
     .venv/               # Python virtual environment (git-ignored)
 ```
 
-`output/` and `reference/` are excluded from Git: generated files are build
-artefacts, and the reference presentations are large, confidential customer
-material.
+`output/`, `reference/`, `data/example_01.json`, and `images/` are excluded from
+Git: generated files are build artefacts, and the rest is large, confidential
+customer material (real presentation text and market photos) — see `.gitignore`
+for the full list and reasoning per entry.
 
 ## Setup
 
@@ -45,14 +52,32 @@ material.
 
 6. Place the five reference presentations (provided separately) into `reference/`.
    They are not tracked by Git.
+7. Place your input JSON (with real market content, see
+   `schema/presentation.schema.json` for the required shape) and its referenced
+   photos wherever your `--input`/image paths point to — `data/` and `images/`
+   are both git-ignored for exactly this content.
 
 ## Usage
 
-Once the template and schema exist (Work Packages 6–7), a presentation is
-generated with:
+Generate a presentation with:
 
 ```
-python src/build_presentation.py --input data/example_01.json --template templates/master_v01.pptx --output output/
+python src/build_presentation.py --input data/example_01.json --template templates/master_v02.pptx --output output/
 ```
 
-This is not yet implemented — see `docs/` for progress.
+or, with the same defaults, via the convenience script:
+
+```
+./run_generator.sh [input.json] [template.pptx] [output_dir]
+```
+
+Each run validates the input against `schema/presentation.schema.json`, fills
+every named placeholder it finds a matching field for, writes a
+`<<MISSING: FIELD_NAME>>` marker for any required field that's absent (instead
+of failing silently), and logs a `schema/template drift` warning for any field
+that has no matching placeholder in the template. Output files are versioned
+(`<project_id>_v<NN>.pptx`) and never overwritten.
+
+See `docs/06-comparison.md` for the current validation writeup and a list of
+known open issues (not tracked in Git — same confidentiality rule as
+`reference/`, since it discusses real customer content).

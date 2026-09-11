@@ -31,6 +31,9 @@ real_img/
 # Throwaway blank-layout preview decks from src/_preview_layouts.py — not a
 # deliverable.
 templates/_preview_*.pptx
+# WP9/WP10 validation doc references real Basel content/filenames — same
+# confidentiality rule as reference/.
+docs/06-comparison.md
 
 # AI tooling — must never appear in this repository
 .claude/
