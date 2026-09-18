@@ -2,3 +2,4 @@ python-pptx
 jsonschema
 Pillow
 Flask
+pywin32

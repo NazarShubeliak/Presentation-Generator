@@ -96,7 +96,6 @@ PAGE_FIELD_SPECS = {
     "PAGE_04_REFERENCES": {"required": [], "optional": []},
     "PAGE_05_USER_FLOW": {
         "required": [
-            "TXT_KIOSK_BACKGROUND_LABEL",
             "IMG_KIOSK_SCREENSHOT",
             "IMG_USER_FLOW_CARD_1",
             "IMG_USER_FLOW_CARD_2",
@@ -117,7 +116,7 @@ PAGE_FIELD_SPECS = {
         ],
     },
     "PAGE_08_TRANSITION": {
-        "required": ["TXT_THEME_WORLD_NAME_1", "IMG_OUTPUT_CARD_1", "TXT_THEME_WORLD_NAME_2", "IMG_OUTPUT_CARD_2"],
+        "required": ["IMG_OUTPUT_CARD_1", "IMG_OUTPUT_CARD_2"],
         "optional": [],
     },
     "PAGE_09_SOCIAL_REACH": {
@@ -540,6 +539,41 @@ def fill_theme_world_name_caption(slide, layout, theme_worlds: list, log, backgr
         mask_orphaned_fixed_shapes(slide, layout, bbox, background_patch, tmp_dir)
 
 
+def build_slide(prs, page_type: str, fields: dict, base_dir: Path, tmp_dir: Path, log,
+                 city: str = None, theme_worlds: list = None, motif_position: int = None):
+    """Add one fully-filled slide to prs for (page_type, fields), including
+    all computed fields (motif headline/subheadline/stats, references
+    footer, theme-world-name caption) — the exact same per-slide logic
+    main() runs in its loop, factored out so a caller that only wants one
+    slide (the GUI's single-slide live preview) can reuse it without
+    duplicating the fill-order/computed-field rules and risking drift.
+    `motif_position` must be supplied by the caller (this function has no
+    view of the rest of the deck to derive "which PAGE_06 occurrence is
+    this" itself); city/theme_worlds are only needed for the page types
+    that use them and may be omitted otherwise.
+    """
+    layout = get_layout(prs, page_type)
+    if layout is None:
+        log(f"  ERROR: template has no layout named {page_type}, skipping")
+        return None
+
+    slide = prs.slides.add_slide(layout)
+    full_bleed_patch, masked_shape_ids = fill_slide(
+        slide, page_type, fields, base_dir, tmp_dir, log, prs.slide_width, prs.slide_height,
+    )
+    if page_type in LAYOUTS_NEEDING_FIXED_SHAPE_REASSERT:
+        reassert_fixed_layout_shapes(slide, layout, masked_shape_ids)
+
+    if page_type == "PAGE_06_LOCAL_MOTIFS" and motif_position is not None:
+        fill_motif_computed_fields(slide, motif_position, log)
+    elif page_type == "PAGE_04_REFERENCES" and city is not None:
+        fill_references_footer(slide, city, log)
+    elif page_type in LAYOUTS_WITH_COMPUTED_THEME_CAPTION and theme_worlds is not None:
+        fill_theme_world_name_caption(slide, layout, theme_worlds, log, full_bleed_patch, tmp_dir)
+
+    return slide
+
+
 def next_output_path(output_dir: Path, project_id: str) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     n = 1
@@ -573,24 +607,15 @@ def main():
         fields = page.get("fields", {})
         log(f"Slide {i}: {page_type}")
 
-        layout = get_layout(prs, page_type)
-        if layout is None:
-            log(f"  ERROR: template has no layout named {page_type}, skipping")
-            continue
-
-        slide = prs.slides.add_slide(layout)
-        full_bleed_patch, masked_shape_ids = fill_slide(slide, page_type, fields, base_dir, tmp_dir, log,
-                                                          prs.slide_width, prs.slide_height)
-        if page_type in LAYOUTS_NEEDING_FIXED_SHAPE_REASSERT:
-            reassert_fixed_layout_shapes(slide, layout, masked_shape_ids)
-
+        motif_position = None
         if page_type == "PAGE_06_LOCAL_MOTIFS":
             motif_table_count += 1
-            fill_motif_computed_fields(slide, motif_table_count, log)
-        elif page_type == "PAGE_04_REFERENCES":
-            fill_references_footer(slide, data["city"], log)
-        elif page_type in LAYOUTS_WITH_COMPUTED_THEME_CAPTION:
-            fill_theme_world_name_caption(slide, layout, data["theme_worlds"], log, full_bleed_patch, tmp_dir)
+            motif_position = motif_table_count
+
+        build_slide(
+            prs, page_type, fields, base_dir, tmp_dir, log,
+            city=data["city"], theme_worlds=data["theme_worlds"], motif_position=motif_position,
+        )
 
     out_path = next_output_path(args.output, data["project_id"])
     prs.save(str(out_path))

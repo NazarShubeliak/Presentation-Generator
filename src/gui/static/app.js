@@ -24,6 +24,15 @@ const pagesEl = document.getElementById("pages");
 const messagesEl = document.getElementById("messages");
 const jsonPreviewEl = document.getElementById("json-preview");
 
+// Page type identifiers (PAGE_01_TITLE, PAGE_08_TRANSITION, ...) carry a
+// number tied to the real layout name in the .pptx template/schema — those
+// numbers skip 07 on purpose (PAGE_07_BESTSELLERS was discontinued) and
+// must never be renumbered. This only derives a clean, gap-free display
+// name for the GUI; the underlying page_type value is untouched.
+function pageTypeName(pt) {
+  return pt.replace(/^PAGE_\d+_/, "").replace(/_/g, " ");
+}
+
 function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, c => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -144,14 +153,16 @@ function pageCardHtml(page, index) {
   return `
     <div class="page-card">
       <div class="page-card-header">
-        <strong>${index + 1}. ${page.page_type}</strong>
+        <strong>${index + 1}. ${escapeHtml(pageTypeName(page.page_type))}</strong>
         <div class="page-card-controls">
+          <button type="button" class="button small" data-page-preview="${index}">Preview</button>
           <button type="button" class="button small" data-page-move-up="${index}">&uarr;</button>
           <button type="button" class="button small" data-page-move-down="${index}">&darr;</button>
           <button type="button" class="button small danger" data-page-remove="${index}">Remove</button>
         </div>
       </div>
       ${fieldsHtml}
+      <div class="slide-preview" data-preview-for="${index}"></div>
     </div>
   `;
 }
@@ -227,13 +238,47 @@ pagesEl.addEventListener("click", (e) => {
     const i = Number(e.target.dataset.pageMoveDown);
     if (i < state.pages.length - 1) [state.pages[i + 1], state.pages[i]] = [state.pages[i], state.pages[i + 1]];
     renderPages();
+  } else if (e.target.dataset.pagePreview !== undefined) {
+    previewSlide(Number(e.target.dataset.pagePreview));
   }
 });
+
+async function previewSlide(index) {
+  const container = pagesEl.querySelector(`[data-preview-for="${index}"]`);
+  if (!container) return;
+  container.innerHTML = `<p class="muted">Генерується попередній перегляд… (кілька секунд, відкривається PowerPoint у фоні)</p>`;
+
+  const payload = buildPayload();
+  let result;
+  try {
+    const resp = await fetch("/api/preview-slide", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: payload, page_index: index, template: templateSelect.value }),
+    });
+    result = await resp.json();
+  } catch (err) {
+    container.innerHTML = `<p class="error">Preview failed: ${escapeHtml(String(err))}</p>`;
+    return;
+  }
+
+  if (!result.ok) {
+    container.innerHTML = `<p class="error">${escapeHtml(result.error || "Preview failed.")}</p>`;
+    return;
+  }
+
+  const mimetype = result.mimetype || "image/png";
+  container.innerHTML =
+    `<img class="slide-preview-img" src="data:${mimetype};base64,${result.image_base64}">` +
+    renderChecks(result.issues || []);
+}
 
 // ---------- Add page / template select ----------
 
 const addPageTypeSelect = document.getElementById("add-page-type");
-addPageTypeSelect.innerHTML = PAGE_TYPES.map(pt => `<option value="${pt}">${pt}</option>`).join("");
+addPageTypeSelect.innerHTML = PAGE_TYPES.map((pt, i) =>
+  `<option value="${pt}">${i + 1}. ${escapeHtml(pageTypeName(pt))}</option>`
+).join("");
 
 document.getElementById("add-page-btn").addEventListener("click", () => {
   state.pages.push({ page_type: addPageTypeSelect.value, fields: {} });
@@ -284,8 +329,27 @@ document.getElementById("generate-btn").addEventListener("click", async () => {
   const link = result.download
     ? ` <a href="/download/${encodeURIComponent(result.download)}">Download ${escapeHtml(result.download)}</a>`
     : "";
-  messagesEl.innerHTML = `<div class="success">Generated.${link}</div><pre class="log">${escapeHtml(result.log)}</pre>`;
+  messagesEl.innerHTML =
+    `<div class="success">Generated.${link}</div>` +
+    renderChecks(result.issues || []) +
+    `<pre class="log">${escapeHtml(result.log)}</pre>`;
 });
+
+function renderChecks(issues) {
+  if (issues.length === 0) {
+    return `<div class="check-ok">✅ Перевірка пройдена — жодних проблем не знайдено.</div>`;
+  }
+  const items = issues
+    .map((it) => {
+      const where = it.slide ? `Слайд ${it.slide}${it.page_type ? ` (${it.page_type})` : ""}` : "";
+      return `<li>${escapeHtml(where)}: ${escapeHtml(it.message)}</li>`;
+    })
+    .join("");
+  return (
+    `<div class="check-issues">⚠ Перевірка знайшла ${issues.length} проблем(и):` +
+    `<ul>${items}</ul></div>`
+  );
+}
 
 renderTopFields();
 renderPages();

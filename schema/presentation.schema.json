@@ -157,7 +157,6 @@
       "description": "Mandatory-field presence enforced by src/build_presentation.py at generation time (<<MISSING>> marker), not by this schema — see fields_PAGE_01_TITLE's note.",
       "additionalProperties": false,
       "properties": {
-        "TXT_KIOSK_BACKGROUND_LABEL": { "type": "string", "maxLength": 30 },
         "IMG_KIOSK_SCREENSHOT": { "$ref": "#/$defs/image_path" },
         "IMG_USER_FLOW_CARD_1": { "$ref": "#/$defs/image_path" },
         "IMG_USER_FLOW_CARD_2": { "$ref": "#/$defs/image_path" }
@@ -185,12 +184,10 @@
     },
     "fields_PAGE_08_TRANSITION": {
       "type": "object",
-      "description": "TXT_THEME_WORLD_NAME_1/_2 corrects docs/04-fields.md, which only lists a bare TXT_THEME_WORLD_NAME for this page type — the actually-built templates/master_v01.pptx layout has 2 separate named placeholders, one per card. Mandatory-field presence enforced by src/build_presentation.py at generation time (<<MISSING>> marker), not by this schema — see fields_PAGE_01_TITLE's note.",
+      "description": "Mandatory-field presence enforced by src/build_presentation.py at generation time (<<MISSING>> marker), not by this schema — see fields_PAGE_01_TITLE's note.",
       "additionalProperties": false,
       "properties": {
-        "TXT_THEME_WORLD_NAME_1": { "type": "string", "maxLength": 55 },
         "IMG_OUTPUT_CARD_1": { "$ref": "#/$defs/image_path" },
-        "TXT_THEME_WORLD_NAME_2": { "type": "string", "maxLength": 55 },
         "IMG_OUTPUT_CARD_2": { "$ref": "#/$defs/image_path" }
       }
     },
